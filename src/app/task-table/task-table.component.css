@@ -1,0 +1,511 @@
+/* General Table Styles */
+html,
+table th,
+table td {
+  vertical-align: middle;
+}
+
+.table-danger {
+  background-color: #2d765c !important;
+  color: #4d17cb !important;
+}
+
+/* Expired Task Row */
+.table.table-bordered.table-hover tbody tr.table-expired td {
+  background-color: #3a2b2b !important;
+  color: #f0d0d0 !important;
+}
+
+/* Keep style on hover */
+.table.table-bordered.table-hover tbody tr.table-expired:hover td {
+  background-color: #4d3636 !important;
+  color: #fff !important;
+}
+
+/* ==========================================================
+   Layout + Theme
+========================================================== */
+.dashboard-container {
+  background-color: #000;
+  color: #fff;
+  height: 100vh;
+  overflow: hidden;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  font-size: 0.85rem;
+  display: flex;
+}
+
+/* ==========================================================
+   PROJECTS SIDEBAR – "Show All" BELOW TITLE (SAME AS ACCOUNTS)
+========================================================== */
+.sidebar {
+  width: 260px;
+  background: #1e1e1e;
+  border-right: 1px solid #333;
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  font-family: 'Segoe UI', sans-serif;
+  overflow: hidden;
+}
+.sidebar-header {
+  padding: 1rem 1rem 0.5rem;
+  background: #1e1e1e;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  border-bottom: 1px solid #333;
+}
+
+.sticky-title {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #fff;
+  margin: 0 0 0.8rem 0;
+}
+
+/* Special "Show All" pill — blue, prominent, below title */
+.all-projects-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 11px 16px;
+  margin: 0 12px 8px 12px;
+  background: #0d6efd;
+  color: white;
+  font-weight: 500;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.25s ease;
+
+}
+
+.all-projects-item:hover {
+  background: #0d6bfd;
+  transform: translateY(-2px);
+
+}
+
+.all-projects-item.active-account {
+  background: #0958d4;
+ 
+}
+
+.all-projects-item .count-badge {
+  background: rgba(255, 255, 255, 0.25);
+  color: white;
+  border: none;
+}
+
+/* Regular project items */
+.sidebar-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 11px 16px;
+  margin: 4px 12px;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  color: #e0e0e0;
+  font-size: 0.85rem;
+  min-height: 48px;
+}
+
+.sidebar-item:hover {
+  background: #2d2d2d;
+}
+
+.sidebar-item.active-account {
+  background: #0d6efd;
+  color: white;
+  font-weight: 500;
+}
+
+.project-name {
+  flex: 1;
+  min-width: 0;
+  padding-right: 12px;
+  line-height: 1.4;
+  word-break: break-word;
+  overflow-wrap: anywhere;
+  white-space: normal;
+}
+
+.count-badge {
+  flex-shrink: 0;
+  background: rgba(255, 255, 255, 0.12);
+  color: #0d6efd;
+  font-weight: bold;
+  font-size: 0.78rem;
+  padding: 5px 10px;
+  border-radius: 20px;
+  min-width: 36px;
+  text-align: center;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.sidebar-item:hover .count-badge,
+.sidebar-item.active-account .count-badge {
+  background: white;
+  color: #0d6efd;
+}
+
+.account-list {
+  flex: 1;                    /* THIS IS THE MAIN FIX */
+  overflow-y: auto;           /* Enable scrolling */
+  padding: 4px 0;
+  min-height: 0;              /* Critical for flex children */
+}
+
+/* Scrollbar */
+.account-list::-webkit-scrollbar {
+  width: 6px;
+}
+.account-list::-webkit-scrollbar-track {
+  background: transparent;
+}
+.account-list::-webkit-scrollbar-thumb {
+  background: #555;
+  border-radius: 3px;
+}
+.account-list::-webkit-scrollbar-thumb:hover {
+  background: #777;
+}
+
+/* ==========================================================
+   Main Content Area
+========================================================== */
+.content {
+  flex: 1;
+  padding: 1rem;
+  overflow-y: auto;
+  position: relative;
+}
+
+/* ==========================================================
+   Filters
+========================================================== */
+/* Filter Layout */
+.filter-row {
+  display: flex;
+  gap: 2rem;
+  width: 100%;
+  flex-wrap: wrap;
+}
+
+/* Scrollable Assignee & Role */
+.assignee-scroll,
+.role-scroll {
+  max-height: 140px;
+  overflow-y: auto;
+  padding-right: 8px;
+  margin-top: 4px;
+}
+
+/* Custom scrollbar */
+.assignee-scroll::-webkit-scrollbar,
+.role-scroll::-webkit-scrollbar {
+  width: 6px;
+}
+.assignee-scroll::-webkit-scrollbar-thumb,
+.role-scroll::-webkit-scrollbar-thumb {
+  background: #555;
+  border-radius: 3px;
+}
+
+/* Inline status checkboxes */
+.form-check-inline {
+  margin-right: 12px;
+}
+
+/* Responsive */
+@media (max-width: 992px) {
+  .filter-row {
+    flex-direction: column;
+  }
+  .filter-box {
+    width: 100%;
+  }
+}
+.filter-bar {
+  padding: 10px 12px !important;
+  background: #1a1a1a;
+  border: 1px solid #333;
+  border-radius: 6px;
+  margin-bottom: 1rem;
+}
+
+.form-check-label {
+  font-size: 0.8rem;
+  color: #ccc;
+}
+
+/* ==========================================================
+   Table Design (Same as Project Page)
+========================================================== */
+.project-table-container {
+  overflow-y: auto;
+  max-height: calc(100vh - 200px);
+  border: 1px solid #333;
+  border-radius: 8px;
+}
+
+.project-header {
+  display: grid;
+  grid-template-columns: 1fr 1.8fr 1.8fr 1.3fr 1fr 2fr 1fr 1fr;
+  padding: 8px 12px;
+  background: #222;
+  font-weight: bold;
+  font-size: 0.8rem;
+  border-bottom: 1px solid #333;
+}
+
+.sticky-header {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.project-row {
+  display: grid;
+  grid-template-columns: 1fr 1.8fr 1.8fr 1.3fr 1fr 2fr 1fr 1fr;
+  font-size: 0.8rem;
+  color: #ddd;
+  background: #1f1f1f;
+  border-bottom: 1px solid #333;
+  align-items: center;
+}
+.project-row div {
+  padding: 8px 12px;
+  border-right: 1px solid #444;
+}
+.project-row div:last-child {
+  border-right: none;
+}
+
+/* Remove this entire block */
+/*
+.bg-danger {
+  background-color: #300000 !important;
+  color: #ffb3b3 !important;
+}
+*/
+
+/* ==========================================================
+   Scrollbars
+========================================================== */
+.account-list::-webkit-scrollbar,
+.project-table-container::-webkit-scrollbar {
+  width: 6px;
+}
+.account-list::-webkit-scrollbar-thumb,
+.project-table-container::-webkit-scrollbar-thumb {
+  background: #dedede;
+  border-radius: 3px;
+}
+
+/* ==========================================================
+   Buttons
+========================================================== */
+.btn-sm {
+  font-size: 0.75rem;
+  padding: 3px 8px;
+  border-radius: 5px;
+}
+/* task-table.component.css */
+.due-date-overdue {
+  color: #ff6b6b !important;   /* Bright red */
+  font-weight: bold;
+}
+/* FILTER BAR - MODERN DROPDOWN DESIGN */
+.filter-bar {
+  background: #1a1a1a;
+  border: 1px solid #333;
+  border-radius: 12px;
+  padding: 1rem;
+  margin-bottom: 1rem;
+}
+
+.filter-row.tight {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr 1fr;
+  gap: 1rem;
+  align-items: end;
+}
+
+.filter-box strong {
+  display: block;
+  color: #0d6efd;
+  font-size: 0.9rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+/* Dropdown Button */
+.dropdown-btn {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  background: #2d2d2d;
+  border: 1px solid #444;
+  border-radius: 10px;
+  color: #e0e0e0;
+  text-align: left;
+  font-size: 0.95rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.dropdown-btn:hover {
+  background: #333;
+  border-color: #0d6efd;
+}
+
+.dropdown-btn i {
+  font-size: 0.8rem;
+  transition: transform 0.2s;
+}
+
+.dropdown  .dropdown-btn[aria-expanded="true"] i,
+.dropdown-menu.show + .dropdown-btn i {
+  transform: rotate(180deg);
+}
+
+/* Dropdown Menu */
+.dropdown-filter {
+  position: relative;
+}
+
+.dropdown-menu {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: #2d2d2d;
+  border: 1px solid #444;
+  border-radius: 10px;
+  margin-top: 6px;
+  max-height: 300px;
+  overflow: hidden;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+  z-index: 100;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-10px);
+  transition: all 0.25s ease;
+}
+
+.dropdown-menu.show {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+
+.dropdown-menu.scrollable {
+  overflow-y: auto;
+}
+
+.dropdown-item {
+  padding: 0.6rem 1rem;
+  border-bottom: 1px solid #333;
+}
+
+.dropdown-item:last-child {
+  border-bottom: none;
+}
+
+/* Custom Checkbox */
+.checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  color: #ddd;
+  font-size: 0.9rem;
+  margin: 0;
+  user-select: none;
+}
+
+.checkbox-label input {
+  opacity: 0;
+  position: absolute;
+}
+
+.checkmark {
+  width: 18px;
+  height: 18px;
+  border: 2px solid #666;
+  border-radius: 4px;
+  position: relative;
+  transition: all 0.2s;
+}
+
+.checkbox-label input:checked ~ .checkmark {
+  background: #0d6efd;
+  border-color: #0d6efd;
+}
+
+.checkmark:after {
+  content: "";
+  position: absolute;
+  display: none;
+  left: 5px;
+  top: 2px;
+  width: 4px;
+  height: 8px;
+  border: solid white;
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+}
+
+.checkbox-label input:checked ~ .checkmark:after {
+  display: block;
+}
+
+/* Search Box */
+.search-box input {
+  background: #2d2d2d;
+  border: 1px solid #444;
+  border-radius: 10px;
+  color: white;
+  padding: 0.75rem 1rem;
+}
+
+.search-box input::placeholder {
+  color: #888;
+}
+
+/* Buttons */
+.filter-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  margin-top: 1rem;
+}
+
+.btn-outline-secondary {
+  background: transparent;
+  border: 1px solid #666;
+  color: #ddd;
+}
+
+.btn-outline-secondary:hover {
+  background: #333;
+  color: white;
+}
+
+/* Responsive */
+@media (max-width: 1200px) {
+  .filter-row.tight {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+  .filter-row.tight {
+    grid-template-columns: 1fr;
+  }
+}

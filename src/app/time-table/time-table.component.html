@@ -1,0 +1,70 @@
+<app-time-navbar [userName]="userName"></app-time-navbar>
+
+<div class="time-table-container">
+  <div class="filter-bar d-flex align-items-center gap-2 mb-3 flex-wrap">
+    <input type="text" class="form-control form-control-sm" placeholder="Search task/project"
+      [(ngModel)]="searchText" (input)="applyFilters()" style="width: 240px;" />
+
+    <select class="form-select form-select-sm" [(ngModel)]="selectedAssignee"
+      (change)="applyFilters()" style="width: 180px;">
+      <option value="">All Assignees</option>
+      <option *ngFor="let name of assignees">{{ name }}</option>
+    </select>
+
+    <input type="date" class="form-control form-control-sm" [(ngModel)]="fromDate"
+      (change)="applyFilters()" style="width: 200px;" />
+
+    <input type="date" class="form-control form-control-sm" [(ngModel)]="toDate"
+      (change)="applyFilters()" style="width: 200px;" />
+
+    <button class="btn btn-sm btn-warning" (click)="clearFilters()">Clear</button>
+  </div>
+
+  <div *ngIf="loading">Loading...</div>
+  <div *ngIf="error">{{ error }}</div>
+
+  <div class="table-responsive-wrapper" *ngIf="!loading && !error && groupedAllocations.length > 0">
+    <table class="table table-bordered text-center align-middle">
+      <thead>
+        <tr>
+          <th>Actions</th>
+          <th>Project Name</th>
+          <th>Task Name</th>
+          <th *ngFor="let date of dateColumns">{{ date }}</th>
+          <th>Total/Month</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let alloc of groupedAllocations">
+          <td>
+            <button class="btn btn-sm btn-primary me-2" (click)="onEdit(alloc)">Edit</button>
+            <button class="btn btn-sm btn-danger" (click)="deleteAllocation(alloc.id)">Delete</button>
+          </td>
+          <td>{{ alloc.projectName }}</td>
+          <td>{{ alloc.taskName }}</td>
+          <td *ngFor="let date of dateColumns">{{ alloc.dynamicHours[date] || 0 }}</td>
+          <td>{{ getTotalForRow(alloc) }}</td>
+        </tr>
+      </tbody>
+      <tfoot>
+        <tr class="table-warning text-dark">
+          <td colspan="3" class="fw-bold">Total</td>
+          <td *ngFor="let date of dateColumns">{{ getTotalForDay(date) }}</td>
+          <td>{{ getTotalOfAllDates() }}</td>
+        </tr>
+      </tfoot>
+    </table>
+  </div>
+
+  <div *ngIf="!loading && !error && groupedAllocations.length === 0" class="no-data">
+    No time allocations found.
+  </div>
+
+  <div class="chart-wrapper mt-4" *ngIf="groupedAllocations.length > 0">
+    <canvas baseChart
+      [data]="barChartData"
+      [type]="barChartType"
+      [options]="barChartOptions">
+    </canvas>
+  </div>
+</div>

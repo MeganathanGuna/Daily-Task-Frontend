@@ -1,0 +1,159 @@
+<div class="dashboard-container">
+  <!-- Sidebar - Projects -->
+<div class="sidebar">
+  <div class="sidebar-header">
+    <h5 class="sticky-title">Projects</h5>
+
+    <!-- SHOW ALL – Special blue pill below title -->
+    <div class="all-projects-item"
+         (click)="clearProjectFilter()"
+         [class.active-account]="!selectedProject">
+      <span class="project-name">Show All</span>
+      <span class="count-badge">({{ projectNames.length }})</span>
+    </div>
+  </div>
+
+  <!-- Scrollable Project List -->
+  <div class="account-list">
+    <div *ngFor="let project of projectNames"
+         class="sidebar-item"
+         [class.active-account]="selectedProject === project"
+         (click)="filterByProject(project)">
+      <span class="project-name" [title]="project">{{ project }}</span>
+      <span class="count-badge">{{ getTaskCount(project) }}</span>
+    </div>
+  </div>
+</div>
+  <!-- Main Section -->
+  <div class="content">
+    <div class="filter-bar">
+  <div class="filter-row tight">
+
+    <!-- Status Dropdown -->
+    <div class="filter-box">
+      <strong>Status</strong>
+      <div class="dropdown-filter" (clickOutside)="closeDropdown('status')">
+        <button class="dropdown-btn" (click)="toggleDropdown('status')">
+          {{ statusFilter.length ? statusFilter.join(', ') : 'All Status' }}
+          <i class="bi bi-chevron-down"></i>
+        </button>
+        <div class="dropdown-menu" [class.show]="dropdowns.status">
+          <div *ngFor="let status of ['Open', 'WIP', 'Completed', 'Closed']" class="dropdown-item">
+            <label class="checkbox-label">
+              <input type="checkbox"
+                     [checked]="statusFilter.includes(status)"
+                     (change)="onCheckboxChange('status', status, $event)">
+              <span class="checkmark"></span>
+              {{ status }}
+            </label>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Assignee Dropdown -->
+    <div class="filter-box">
+      <strong>Assignee</strong>
+      <div class="dropdown-filter" (clickOutside)="closeDropdown('assignee')">
+        <button class="dropdown-btn" (click)="toggleDropdown('assignee')">
+          {{ assigneeFilterList.length ? assigneeFilterList.join(', ') : 'All Assignees' }}
+          <i class="bi bi-chevron-down"></i>
+        </button>
+        <div class="dropdown-menu scrollable" [class.show]="dropdowns.assignee">
+          <div *ngFor="let user of roleUsers" class="dropdown-item">
+            <label class="checkbox-label">
+              <input type="checkbox"
+                     [checked]="assigneeFilterList.includes(user)"
+                     (change)="onCheckboxChange('assignee', user, $event)">
+              <span class="checkmark"></span>
+              {{ user }}
+            </label>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Role Dropdown -->
+    <div class="filter-box">
+      <strong>Role</strong>
+      <div class="dropdown-filter" (clickOutside)="closeDropdown('role')">
+        <button class="dropdown-btn" (click)="toggleDropdown('role')">
+          {{ roleTypeFilterList.length ? roleTypeFilterList.join(', ') : 'All Roles' }}
+          <i class="bi bi-chevron-down"></i>
+        </button>
+        <div class="dropdown-menu scrollable" [class.show]="dropdowns.role">
+          <div *ngFor="let role of roleTypes" class="dropdown-item">
+            <label class="checkbox-label">
+              <input type="checkbox"
+                     [checked]="roleTypeFilterList.includes(role)"
+                     (change)="onCheckboxChange('role', role, $event)">
+              <span class="checkmark"></span>
+              {{ role }}
+            </label>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Search Box -->
+    <div class="filter-box search-box">
+      <strong>Search</strong>
+      <input type="text" class="form-control form-control-sm"
+             placeholder="Search tasks..."
+             [(ngModel)]="globalSearch"
+             (input)="applyFilters()" />
+    </div>
+
+  </div>
+
+  <!-- Clear + Excel Buttons -->
+  <div class="filter-actions">
+    <button class="btn btn-sm btn-outline-secondary me-2" (click)="clearFilters()">
+      Clear
+    </button>
+    <button class="btn btn-sm btn-success" (click)="downloadExcel()">
+      Excel
+    </button>
+  </div>
+</div>
+    <!-- Table -->
+    <div class="project-table-container mt-3">
+      <div class="project-header sticky-header">
+        <div *ngIf="showActions">Actions</div>
+        <div>Project</div>
+        <div>Task</div>
+        <div>Role</div>
+        <div>Status</div>
+        <div>Remarks</div>
+        <div>Assigned</div>
+        <div>Due</div>
+      </div>
+      <div class="project-list">
+        <div class="project-row"
+             *ngFor="let task of tasks"
+             Class="bg-dark">
+          <!-- Actions -->
+          <div *ngIf="showActions" class="actions">
+            <button *ngIf="canEdit(task)"
+                    class="btn btn-sm btn-light me-2"
+                    (click)="edit(task)">
+              <i class="bi bi-pencil-square"></i>
+            </button>
+            <button *ngIf="!canEdit(task) && canEditLimited(task)"
+                    class="btn btn-sm btn-warning"
+                    (click)="edit(task)">
+              <i class="bi bi-pencil"></i>
+            </button>
+          </div>
+          <div>{{ task.projectName }}</div>
+          <div>{{ task.projectTitle }}</div>
+          <div>{{ task.role }}</div>
+          <div>{{ task.status }}</div>
+          <div>{{ task.remarks || '—' }}</div>
+          <div>{{ task.assignedDate }}</div>
+          <div [class.due-date-overdue]="isExpired(task)">{{ task.endDate }}</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,217 @@
+<div class="dashboard-container">
+  <!-- Floating Header -->
+  <div class="floating-header">
+    <div class="header-left">
+      <h1>Specialization Dashboard</h1>
+    </div>
+    <div class="header-right">
+      <span class="welcome-text">Welcome, {{ userName }}</span>
+      <button class="hamburger-btn" (click)="toggleMenu()">
+        <i class="bi bi-list"></i>
+      </button>
+    </div>
+  </div>
+
+  <!-- Floating Menu -->
+  <div class="floating-menu" [class.open]="menuOpen">
+    <button class="menu-item" routerLink="/specialization"><i class="bi bi-briefcase"></i> Specialization</button>
+    <button *ngIf="userRole === 'Admin' || userRole === 'Employee' || isPM" class="menu-item" routerLink="/add-time"><i class="bi bi-clock-history"></i> Time Management</button>
+    <button *ngIf="userRole === 'Admin'" class="menu-item" (click)="openAccountForm()"><i class="bi bi-plus-circle"></i> Add Account</button>
+    <button *ngIf="userRole === 'Admin' || isPM" class="menu-item" (click)="openForm()"><i class="bi bi-plus-circle"></i> Add Project</button>
+    <button class="menu-item" (click)="goToAllTasks()"><i class="bi bi-card-list"></i> All Tasks</button>
+    <button class="menu-item" (click)="goHome()"><i class="bi bi-house-door-fill"></i> Home</button>
+    <button class="menu-item logout" (click)="logout()">Logout</button>
+  </div>
+  <div class="overlay" *ngIf="menuOpen" (click)="toggleMenu()"></div>
+
+  <div class="main-container">
+    <!-- Sidebar -->
+    <div class="sidebar">
+      <div class="sidebar-header">
+        <h5 class="sticky-title">Accounts</h5>
+        <div class="all-accounts-item" (click)="showAllAccounts()" [class.active-account]="selectedAccount === null">
+          <span class="account-name">All Accounts</span>
+        </div>
+      </div>
+      <div class="account-list">
+        <div *ngFor="let account of accountNames" class="sidebar-item"
+             (click)="filterByAccount(account)" [class.active-account]="selectedAccount === account">
+          <span class="account-name">{{ account }}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="content">
+      <!-- FILTERS + SUMMARY BAR -->
+      <div class="filters-summary-bar">
+        <div class="filters-left">
+          <div class="dropdown-filter">
+            <strong>PM</strong>
+            <div class="dropdown">
+              <button class="dropdown-btn" (click)="toggleDropdown('pm'); $event.stopPropagation()">
+                {{ selectedPMs.length ? selectedPMs.join(', ') : 'All PMs' }} <i class="bi bi-chevron-down"></i>
+              </button>
+              <div class="dropdown-menu" [class.show]="dropdowns.pm">
+                <div class="search-box"><input type="text" placeholder="Search PM..." [(ngModel)]="pmSearch" (input)="filterPMs()"></div>
+                <div class="dropdown-items">
+                  <label *ngFor="let pm of filteredPMs" class="dropdown-item">
+                    <input type="checkbox" [checked]="selectedPMs.includes(pm)" (change)="togglePM(pm)"> {{ pm }}
+                  </label>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="dropdown-filter">
+            <strong>Status</strong>
+            <div class="dropdown">
+              <button class="dropdown-btn" (click)="toggleDropdown('status'); $event.stopPropagation()">
+                {{ selectedStatuses.length ? selectedStatuses.join(', ') : 'Open, WIP' }} <i class="bi bi-chevron-down"></i>
+              </button>
+              <div class="dropdown-menu" [class.show]="dropdowns.status">
+                <div class="dropdown-items">
+                  <label *ngFor="let status of statusOptions" class="dropdown-item">
+                    <input type="checkbox" [checked]="selectedStatuses.includes(status)" (change)="toggleStatus(status)"> {{ status }}
+                  </label>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="search-group">
+            <input type="text" class="search-input" placeholder="Search project..." [(ngModel)]="searchText" (input)="applyFilters()">
+          </div>
+          <button class="clear-btn" (click)="clearFilters()">Clear</button>
+        </div>
+
+        <div class="summary-cards">
+          <div class="summary-card">
+            <h6>Projects</h6>
+            <p>Total: <strong>{{ totalProjects }}</strong></p>
+            <p class="clickable text-info" (click)="showAssignedProjects()">Assigned: <strong>{{ assignedProjects }}</strong></p>
+          </div>
+          <div class="summary-card">
+            <h6>Tasks</h6>
+            <p>Total: <strong>{{ totalTasks }}</strong></p>
+            <p class="clickable text-warning" (click)="showAssignedTasks()">Assigned: <strong>{{ assignedTasks }}</strong></p>
+          </div>
+        </div>
+      </div>
+
+      <!-- PROJECT LIST WITH SCROLL -->
+      <div class="project-list-container">
+        <!-- Table Header - Sticky -->
+        <div class="project-header sticky-header">
+          <div>Account</div>
+          <div>Project</div>
+          <div>PM</div>
+          <div>Status</div>
+          <div>Phases</div>
+          <div>Assigned Date</div>
+          <div>Remarks</div>
+          <div>Actions</div>
+        </div>
+
+        <!-- Show Hidden Projects Button -->
+        <div *ngIf="userRole === 'Admin'" class="hidden-projects-btn">
+          <button class="btn btn-sm w-100 text-start" (click)="toggleHiddenView()">
+            <i class="bi me-2" [ngClass]="showHiddenOnly ? 'bi-eye-slash' : 'bi-eye'"></i>
+            {{ showHiddenOnly ? 'Showing Hidden Projects' : 'Show Hidden Projects' }}
+            <span *ngIf="showHiddenOnly" class="badge bg-danger ms-2">{{ hiddenProjects.size }}</span>
+          </button>
+        </div>
+
+        <!-- Projects List -->
+        <div class="project-list">
+          <div class="project-card-rect" *ngFor="let project of filteredProjects">
+            <div class="project-row">
+              <div>{{ project.account?.accountName || project.accountName || '—' }}</div>
+              <div>{{ project.projectName }}</div>
+              <div>{{ project.pmName || '—' }}</div>
+              <div>{{ project.status || '—' }}</div>
+              <div>{{ project.phases || '—' }}</div>
+              <div>{{ project.assignedDate || '—' }}</div>
+              <div>{{ project.remarks || '—' }}</div>
+              <div class="action-buttons">
+                <button class="btn btn-sm btn-light me-2" (click)="toggleTasks(project.projectName)">
+                  <i class="bi" [ngClass]="isProjectExpanded(project.projectName) ? 'bi-dash' : 'bi-plus'"></i>
+                </button>
+                <button class="btn btn-sm btn-success" (click)="openAddTaskForm(project.projectName)">
+                  <i class="bi bi-plus-circle"></i>
+                </button>
+                <button *ngIf="userRole === 'Admin'" class="btn btn-sm btn-danger" (click)="hideProject(project.projectName)">
+                  <i class="bi bi-x-circle"></i>
+                </button>
+              </div>
+            </div>
+            <!-- Expanded Task Table -->
+          <div *ngIf="isProjectExpanded(project.projectName)" class="task-list">
+            <table class="table table-dark table-sm table-striped">
+              <thead>
+                <tr>
+                  <th>Task</th>
+                  <th>Status</th>
+                  <th>Assigned To</th>
+                  <th>Remarks</th>
+                  <th>Assigned Date</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <ng-container *ngFor="let task of projectPhaseTasksMap[project.projectName]">
+                  <!-- Skip subtasks -->
+                  <ng-container *ngIf="!task.taskName.startsWith('POC Funding -')">
+                    <tr>
+                      <td>
+                        {{ task.taskName }}
+                        <!-- Expand button only for 'POC Funding' -->
+                        <button *ngIf="task.taskName === 'POC Funding'"
+                                class="btn btn-sm btn-light ms-2"
+                                (click)="togglePOCSubtasks(project.projectName)">
+                          <i class="bi"
+                             [ngClass]="{
+                               'bi-plus': !isPOCExpanded(project.projectName),
+                               'bi-dash': isPOCExpanded(project.projectName)
+                             }"></i>
+                        </button>
+                      </td>
+                      <td>{{ task.status }}</td>
+                      <td>{{ task.assignedTo || '—' }}</td>
+                      <td>{{ task.remarks || '—' }}</td>
+                      <td>{{ task.assignedDate || '—' }}</td>
+                      <td>
+                        <ng-container *ngIf="canEditOrDelete()">
+                          <button class="btn btn-sm btn-warning me-1" (click)="editPhaseTask(task)">Edit</button>
+                          <button class="btn btn-sm btn-danger" (click)="deletePhaseTask(task.id, project.projectName)">Delete</button>
+                        </ng-container>
+                      </td>
+                    </tr>
+
+                    <!-- ✅ FIXED: Render subtasks only under 'POC Funding' when expanded -->
+                    <ng-container *ngIf="task.taskName === 'POC Funding' && isPOCExpanded(project.projectName)">
+                      <tr *ngFor="let sub of getPOCSubtasks(project.projectName)" class="subtask-row">
+                        <td class="ps-5">↳ {{ sub.taskName.replace('POC Funding - ', '') }}</td>
+                        <td>{{ sub.status }}</td>
+                        <td>{{ sub.assignedTo || '—' }}</td>
+                        <td>{{ sub.remarks || '—' }}</td>
+                        <td>{{ sub.assignedDate || '—' }}</td>
+                        <td>
+                          <ng-container *ngIf="canEditOrDelete()">
+                            <button class="btn btn-sm btn-warning me-1" (click)="editPhaseTask(sub)">Edit</button>
+                            <button class="btn btn-sm btn-danger" (click)="deletePhaseTask(sub.id, project.projectName)">Delete</button>
+                          </ng-container>
+                        </td>
+                      </tr>
+                    </ng-container>
+
+                  </ng-container>
+                </ng-container>
+              </tbody>
+            </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>

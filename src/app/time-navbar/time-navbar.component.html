@@ -1,0 +1,24 @@
+<div class="navbar d-flex justify-content-between align-items-center p-2 bg-dark text-white">
+  <div>
+    <button class="btn btn-primary btn-sm me-2" (click)="goToAddTime()">
+      <i class="bi bi-plus-circle"></i> Add Time
+    </button>
+
+    <button class="btn btn-outline-light btn-sm me-2" (click)="goToAllTime()">
+      <i class="bi bi-clock-history"></i> All Time
+    </button>
+
+    <button class="btn btn-outline-light btn-sm me-2" (click)="goToHome()">
+      <i class="bi bi-house-door-fill"></i> Home
+    </button>
+  </div>
+
+  <h4>TIME MANAGEMENT</h4>
+
+  <div>
+    <span class="me-3">Welcome, {{ userName }}</span>
+    <button class="btn btn-danger btn-sm" (click)="logout()">
+      Logout
+    </button>
+  </div>
+</div>

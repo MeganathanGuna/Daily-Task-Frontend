@@ -1,0 +1,220 @@
+/* ==========================================================
+   TASK FORM - MODERN DARK DESIGN (Matches Add Project Popup)
+========================================================== */
+
+.task-form-modern {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.5rem;
+  padding: 0;
+  background: transparent;
+}
+
+/* Form Group - Label + Input */
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.form-group label {
+  color: #e0e0e0;
+  font-size: 0.95rem;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+}
+
+/* Inputs, Selects, Textarea */
+.form-group input,
+.form-group select,
+.form-group textarea,
+::ng-deep .ng-select .ng-select-container {
+  padding: 0.75rem 1rem;
+  background: #2d2d2d !important;
+  border: 1px solid #444 !important;
+  border-radius: 10px;
+  color: #ffffff !important;
+  font-size: 1rem;
+  transition: all 0.25s ease;
+  min-height: 48px;
+}
+
+.form-group input::placeholder,
+.form-group textarea::placeholder {
+  color: #888;
+}
+
+/* Focus State - Blue Glow */
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus,
+::ng-deep .ng-select.ng-select-focused .ng-select-container {
+  outline: none;
+  border-color: #0d6efd !important;
+  box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.25);
+  background: #333 !important;
+}
+
+/* ng-select - Full Dark Mode */
+::ng-deep .ng-select .ng-select-container {
+  background: #2d2d2d !important;
+  border: 1px solid #444 !important;
+}
+
+::ng-deep .ng-select .ng-placeholder {
+  color: #888 !important;
+}
+
+::ng-deep .ng-select .ng-value,
+::ng-deep .ng-select .ng-value-label {
+  color: #e0e0e0 !important;
+  font-weight: 500;
+}
+
+::ng-deep .ng-select .ng-dropdown-panel {
+  background: #2d2d2d !important;
+  border: 1px solid #555 !important;
+  border-radius: 10px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+  margin-top: 4px;
+}
+
+::ng-deep .ng-select .ng-dropdown-panel .ng-option {
+  color: #e0e0e0 !important;
+  padding: 10px 14px;
+  font-size: 0.95rem;
+}
+
+::ng-deep .ng-select .ng-dropdown-panel .ng-option:hover,
+::ng-deep .ng-select .ng-dropdown-panel .ng-option.ng-option-marked {
+  background: #0d6efd !important;
+  color: white !important;
+}
+
+::ng-deep .ng-select .ng-dropdown-panel .ng-option.ng-option-selected {
+  background: #0d6efd !important;
+  color: white !important;
+  font-weight: 600;
+}
+
+/* Role + User Side-by-Side (Horizontal Layout) */
+.horizontal-group {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+/* Create Default Tasks Checkbox */
+.default-tasks-section {
+  grid-column: 1 / -1;
+  background: #2d2d2d;
+  padding: 1.2rem 1.5rem;
+  border-radius: 12px;
+  border: 1px solid #444;
+  margin: 1rem 0;
+}
+
+.default-tasks-checkbox {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.default-tasks-checkbox input[type="checkbox"] {
+  width: 22px;
+  height: 22px;
+  accent-color: #0d6efd;
+  cursor: pointer;
+}
+
+.default-tasks-checkbox label {
+  color: #0d6efd;
+  font-weight: 600;
+  font-size: 1rem;
+  cursor: pointer;
+  margin: 0;
+}
+
+.default-tasks-checkbox small {
+  color: #aaa;
+  font-size: 0.85rem;
+  margin-left: 34px;
+  display: block;
+  margin-top: 4px;
+}
+
+/* Form Actions - Buttons at Bottom */
+.form-actions {
+  grid-column: 1 / -1;
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+  padding-top: 1.5rem;
+  margin-top: 1rem;
+  border-top: 1px solid #444;
+}
+
+.btn-add-task {
+  background: #28a745;
+  color: white;
+  padding: 0.8rem 2rem;
+  border: none;
+  border-radius: 10px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  min-width: 140px;
+}
+
+.btn-add-task:hover {
+  background: #218838;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(40, 167, 69, 0.4);
+}
+
+.btn-cancel {
+  background: #444;
+  color: #ddd;
+  padding: 0.8rem 1.8rem;
+  border: none;
+  border-radius: 10px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-cancel:hover {
+  background: #555;
+  color: white;
+}
+
+/* Validation Errors */
+input.ng-invalid.ng-touched,
+select.ng-invalid.ng-touched,
+textarea.ng-invalid.ng-touched,
+::ng-deep .ng-select.ng-invalid.ng-touched .ng-select-container {
+  border-color: #dc3545 !important;
+  box-shadow: 0 0 0 3px rgba(220, 53, 69, 0.2);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .task-form-modern {
+    grid-template-columns: 1fr;
+    gap: 1.2rem;
+  }
+  
+  .horizontal-group {
+    grid-template-columns: 1fr;
+  }
+  
+  .form-actions {
+    flex-direction: column;
+  }
+  
+  .btn-add-task,
+  .btn-cancel {
+    width: 100%;
+  }
+}

@@ -1,0 +1,20 @@
+.card {
+  border-radius: 15px;
+}
+
+.card-body {
+  padding: 2rem;
+}
+
+h3 {
+  font-size: 24px;
+}
+
+.btn {
+  font-size: 18px;
+  padding: 10px;
+}
+
+.text-danger {
+  font-size: 14px;
+}

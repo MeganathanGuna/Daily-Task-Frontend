@@ -1,0 +1,83 @@
+<form [formGroup]="taskForm" (ngSubmit)="submit()" class="row g-3">
+
+  <div class="col-md-3">
+  <label class="form-label">Assigned Date</label>
+  <input 
+    type="text" 
+    class="form-control" 
+    [value]="editId ? (taskForm.get('assignedDate')?.value || '—') : todayDate" 
+    disabled 
+  />
+</div>
+
+  <!-- Project Name (Searchable Dropdown) -->
+  <div class="col-md-3">
+    <label class="form-label">Project Name</label>
+    <ng-select
+      [items]="allProjects"
+      bindLabel="projectName"
+      bindValue="projectName"
+      formControlName="projectName"
+      [searchable]="true"
+      [clearable]="true"
+    >
+    </ng-select>
+  </div>
+
+  <!-- Task Title -->
+  <div class="col-md-3">
+    <label class="form-label">Task Name</label>
+    <input type="text" class="form-control" formControlName="projectTitle" />
+  </div>
+
+  <!-- Created By -->
+  <div class="col-md-3">
+    <label class="form-label">Created By</label>
+    <input type="text" class="form-control" formControlName="assignedTo" readonly />
+  </div>
+
+  <!-- Assigned To (Role + User) -->
+  <div class="col-md-6">
+    <label class="form-label">Assigned To</label>
+    <div class="d-flex gap-2">
+      <select class="form-select" formControlName="role">
+        <option *ngFor="let role of predefinedRoles" [value]="role">{{ role }}</option>
+      </select>
+      <select class="form-select" formControlName="roleUser">
+        <option *ngFor="let user of allUsers" [value]="user.name">{{ user.name }}</option>
+      </select>
+    </div>
+  </div>  
+    
+  <!-- Status -->
+  <div class="col-md-3">
+    <label class="form-label">Status</label>
+    <select class="form-select" formControlName="status">
+      <option value="">Select Status</option>
+      <option value="Open">Open</option>
+      <option value="WIP">WIP</option>
+      <option value="Completed">Completed</option>
+      <option value="Closed">Closed</option>
+    </select>
+  </div>
+
+  <!-- Remarks -->
+  <div class="col-md-6">
+    <label class="form-label">Remarks</label>
+    <textarea class="form-control" rows="1" formControlName="remarks"></textarea>
+  </div>
+
+  <!-- Estimated End Date -->
+  <div class="col-md-3">
+    <label class="form-label">Estimated End Date</label>
+    <input type="date" class="form-control" formControlName="endDate" />
+  </div>
+
+  <!-- Submit + Cancel -->
+  <div class="col-md-12 d-flex justify-content-end mt-3">
+    <button class="btn btn-success me-2" type="submit" [disabled]="taskForm.disabled">
+      {{ editId ? 'Update Task' : 'Add Task' }}
+    </button>
+    <button type="button" class="btn btn-secondary" (click)="onCancel()">Cancel</button>
+  </div>
+</form>

@@ -1,0 +1,28 @@
+body {
+  margin: 0;
+  background-color: #000000;
+  color: #ffffff;
+  font-family: Arial, sans-serif;
+}
+
+.mat-toolbar {
+  background-color: #1a1a1a !important;
+  color: white;
+}
+
+.mat-table {
+  background-color: #1a1a1a;
+  color: white;
+}
+
+.mat-form-field-infix {
+  color: white;
+}
+
+button.mat-raised-button {
+  background-color: #0d6efd;
+  color: white;
+}
+
+
+

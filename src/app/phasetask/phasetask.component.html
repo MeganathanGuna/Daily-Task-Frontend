@@ -1,0 +1,79 @@
+<div class="phase-task-form" *ngIf="projectName">
+  <h5 class="text-white">Add Task for {{ projectName }}</h5>
+
+  <form (ngSubmit)="saveTask()" #taskForm="ngForm">
+    <div class="mb-2">
+      <label class="form-label">Assigned Date</label>
+      <input
+        type="date"
+        class="form-control"
+        [(ngModel)]="task.assignedDate"
+        name="assignedDate"
+        required
+      />
+    </div>
+
+    <div class="mb-2">
+      <label class="form-label">Task Name</label>
+      <input
+        type="text"
+        class="form-control"
+        [(ngModel)]="task.taskName"
+        name="taskName"
+        required
+      />
+    </div>
+
+    <div class="mb-2">
+      <label class="form-label">Status</label>
+      <select
+        class="form-select"
+        [(ngModel)]="task.status"
+        name="status"
+        required
+      >
+        <option>Open</option>
+        <option>WIP</option>
+        <option>Completed</option>
+        <option>Closed</option>
+        <option>Not Application</option>
+      </select>
+    </div>
+
+    <!-- Assigned To (User) -->
+     <div class="mb-2">
+  <label class="form-label">Assigned To</label>
+  <select
+    class="form-select"
+    [(ngModel)]="task.assignedTo"
+    name="assignedTo"
+    required
+  >
+    <option value="" disabled selected>Select PM's</option>
+    <option *ngFor="let user of allUsers" [value]="user.name">{{ user.name }}</option>
+  </select>
+</div>
+
+
+    <div class="mb-2">
+      <label class="form-label">Remarks</label>
+      <textarea
+        class="form-control"
+        [(ngModel)]="task.remarks"
+        name="remarks"
+      ></textarea>
+    </div>
+
+    <div class="d-flex justify-content-end">
+      <button type="button" class="btn btn-secondary me-2" (click)="cancel()">
+        Cancel
+      </button>
+      <button type="submit" class="btn btn-primary">Save</button>
+    </div>
+  </form>
+</div>
+
+<!-- If no project name -->
+<div *ngIf="!projectName" class="alert alert-warning">
+  No project selected. Please go back to Specialization page.
+</div>
