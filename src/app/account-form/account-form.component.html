@@ -1,0 +1,11 @@
+<form [formGroup]="accountForm" (ngSubmit)="submit()" class="row g-3">
+  <div class="col-md-6">
+    <label class="form-label">Account Name</label>
+    <input type="text" class="form-control" formControlName="accountName" />
+  </div>
+
+  <div class="col-md-6 d-flex align-items-end">
+    <button type="submit" class="btn btn-success w-100">Save Account</button>
+    <button type="button" class="btn btn-secondary ms-2" (click)="closeForm()">Cancel</button>
+  </div>
+</form>

@@ -1,0 +1,46 @@
+:host {
+  display: block;
+  background-color: #000;
+  color: white;
+  min-height: 100vh;
+  padding: 1rem;
+}
+
+.time-table-container {
+  background-color: #000;
+  color: white;
+}
+
+.table th,
+.table td {
+  background-color: #111 !important;
+  color: white;
+}
+
+.form-control,
+.form-select {
+  background-color: #1a1a1a;
+  color: white;
+  border: 1px solid #444;
+}
+
+.no-data {
+  color: #bbb;
+}
+
+button {
+  color: white;
+}
+
+.table-responsive-wrapper {
+  overflow-x: auto;
+}
+
+.table {
+  min-width: 1000px;
+}
+
+.chart-wrapper canvas {
+  max-width: 6000px;
+  margin: 110 auto;
+}

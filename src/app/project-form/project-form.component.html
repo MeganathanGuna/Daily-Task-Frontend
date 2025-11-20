@@ -1,0 +1,93 @@
+<form [formGroup]="projectForm" (ngSubmit)="submit()" class="row g-3 bg-dark text-white p-4 rounded">
+  <h4>{{ editingProject ? 'Edit Project' : 'Add Project' }}</h4>
+
+  <!-- Assigned Date -->
+  <div class="col-md-4" *ngIf="!editingProject?.limitedEdit">
+    <label class="form-label">Assigned Date</label>
+    <input type="date" class="form-control" formControlName="assignedDate" />
+  </div>
+
+  <!-- Account -->
+   <div class="col-md-4" *ngIf="!editingProject?.limitedEdit">
+    <label class="form-label">Account Name</label>
+    <ng-select
+      [items]="accounts"
+      bindLabel="accountName"
+      formControlName="account"
+      [searchable]="true"
+      [clearable]="true">
+    </ng-select>
+  </div>
+
+
+
+  <!-- Project Name -->
+  <div class="col-md-4" *ngIf="!editingProject?.limitedEdit">
+    <label class="form-label">Project Name</label>
+    <input type="text" class="form-control" formControlName="projectName" />
+  </div>
+
+  <!-- Project Manager -->
+  <div class="col-md-4" *ngIf="!editingProject?.limitedEdit">
+    <label class="form-label">Project Manager</label>
+    <select class="form-select" formControlName="pmName">
+      <option value="">-- Select PM --</option>
+      <option *ngFor="let pm of pmList" [value]="pm.name">{{ pm.name }}</option>
+    </select>
+  </div>
+
+  <!-- Status (always editable) -->
+  <div class="col-md-3">
+    <label class="form-label">Status</label>
+    <select class="form-select" formControlName="status">
+      <option value="">Select Status</option>
+      <option value="Open">Open</option>
+      <option value="WIP">WIP</option>
+      <option value="Completed">Completed</option>
+      <option value="Closed">Closed</option>
+    </select>
+  </div>
+
+  <div class="col-md-3">
+    <label class="form-label">Phases</label>
+    <select class="form-select" formControlName="phases">
+      <option value="">Select Phases</option>
+      <option value="Estimation">Estimation</option>
+      <option value="SOW">SOW</option>
+      <option value="Billing Migration">Billing Migration</option>
+      <option value="Implementation">Implementation</option>
+      <option value="Program">Program</option>
+      <option value="Operation Handover">Operation Handover</option>
+    </select>
+  </div>
+
+  <!-- Remarks (always editable) -->
+  <div class="col-md-6">
+    <label class="form-label">Remarks</label>
+    <textarea class="form-control" rows="1" formControlName="remarks"></textarea>
+  </div>
+
+  <div class="form-group" style="margin-top: 1rem;">
+  <label style="display: flex; align-items: center; gap: 10px; cursor: pointer; color: #e0e0e0;">
+<input 
+  type="checkbox" 
+  [(ngModel)]="createDefaultTasks" 
+  [ngModelOptions]="{standalone: true}"
+  id="createDefaultTasks">
+    <span style="font-size: 0.95rem;">
+      <strong>Create Default Tasks</strong><br>
+      <small style="color: #aaa;">Automatically create 13 standard tasks (Estimation, SOW, etc.)</small>
+    </span>
+  </label>
+</div>
+
+
+  <!-- Buttons -->
+  <div class="col-12 d-flex justify-content-end mt-3">
+    <button type="submit" class="btn btn-success me-2">
+      {{ editingProject ? 'Update Project' : 'Add Project' }}
+    </button>
+    <button type="button" class="btn btn-secondary" (click)="onCancel()">Cancel</button>
+  </div>
+</form>
+
