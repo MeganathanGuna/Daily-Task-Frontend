@@ -6,6 +6,24 @@ export interface Account {
   id?: number;
   accountName: string;
 }
+// ==== OPERATION ACTIVITY INTERFACES ====
+export interface OperationProject {
+  id?: number;
+  projectName: string;
+  tasks?: OperationTask[]; // optional
+}
+
+export interface OperationTask {
+  id?: number;
+  taskName: string;
+  assignedTo: string;
+  status: string;
+  link?: string;
+  assignedDate: string; // ISO date
+  dueDate: string;      // ISO date
+  remarks?: string;
+  operationProject?: { projectName: string };
+}
 // task.service.ts
 export interface PhaseTask {
   id?: number;
@@ -59,6 +77,8 @@ export class TaskService {
   private timeApiUrl = 'http://localhost:8080/tasks/time';
   private accountApiUrl = 'http://localhost:8080/tasks/accounts';
   private phaseTaskUrl = 'http://localhost:8080/phasetasks';
+  private operationProjectUrl = 'http://localhost:8080/operation/projects';
+  private operationTaskUrl = 'http://localhost:8080/operation/tasks';
   private jsonHeaders = new HttpHeaders({ 'Content-Type': 'application/json' });
   constructor(private http: HttpClient) {}
   
@@ -175,5 +195,50 @@ deleteTimeAllocation(id: number): Observable<void> {
 
   deletePhaseTask(id: number): Observable<void> {
     return this.http.delete<void>(`${this.phaseTaskUrl}/${id}`);
+  }
+  // ================== OPERATION PROJECTS ==================
+  getOperationProjectNames(): Observable<string[]> {
+    return this.http.get<string[]>(`${this.operationProjectUrl}/names`);
+  }
+
+  getOperationProjects(): Observable<OperationProject[]> {
+    return this.http.get<OperationProject[]>(this.operationProjectUrl);
+  }
+
+  createOperationProject(project: OperationProject): Observable<OperationProject> {
+    return this.http.post<OperationProject>(this.operationProjectUrl, project, {
+      headers: this.jsonHeaders
+    });
+  }
+
+  deleteOperationProject(id: number): Observable<void> {
+    return this.http.delete<void>(`${this.operationProjectUrl}/${id}`);
+  }
+
+  // ================== OPERATION TASKS ==================
+  getOperationTasks(): Observable<OperationTask[]> {
+    return this.http.get<OperationTask[]>(this.operationTaskUrl);
+  }
+
+  getOperationTasksByProject(projectName: string): Observable<OperationTask[]> {
+    return this.http.get<OperationTask[]>(
+      `${this.operationTaskUrl}/project/${encodeURIComponent(projectName)}`
+    );
+  }
+
+  createOperationTask(task: OperationTask): Observable<OperationTask> {
+    return this.http.post<OperationTask>(this.operationTaskUrl, task, {
+      headers: this.jsonHeaders
+    });
+  }
+
+  updateOperationTask(id: number, task: OperationTask): Observable<OperationTask> {
+    return this.http.put<OperationTask>(`${this.operationTaskUrl}/${id}`, task, {
+      headers: this.jsonHeaders
+    });
+  }
+
+  deleteOperationTask(id: number): Observable<void> {
+    return this.http.delete<void>(`${this.operationTaskUrl}/${id}`);
   }
 }

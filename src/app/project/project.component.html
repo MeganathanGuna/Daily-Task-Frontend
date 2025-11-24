@@ -21,6 +21,9 @@
             class="menu-item" routerLink="/add-time">
       <i class="bi bi-clock-history"></i> Time Management
     </button>
+    <button class="menu-item" routerLink="/operation-activity" routerLinkActive="active">
+  <i class="bi bi-gear-fill"></i> Operation Activity
+</button>
     <button *ngIf="userRole === 'Admin'" class="menu-item" (click)="openAccountForm()">
       <i class="bi bi-plus-circle"></i> Add Account
     </button>

@@ -29,6 +29,7 @@ import { NgSelectModule } from '@ng-select/ng-select';
 import { MatSelectModule } from '@angular/material/select';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatOptionModule } from '@angular/material/core';
+import { OperationActivityComponent } from './operation-activity/operation-activity.component';
 
 
 @NgModule({
@@ -47,6 +48,7 @@ import { MatOptionModule } from '@angular/material/core';
     AccountFormComponent,
     SpecializationComponent,
     PhasetaskComponent,
+    OperationActivityComponent,
   ],
   imports: [
     BrowserModule,
