@@ -11,6 +11,7 @@ import { TaskFormComponent } from './task-form/task-form.component';
 import { SpecializationComponent } from './specialization/specialization.component';
 import { PhasetaskComponent } from 'src/app/phasetask/phasetask.component';
 import { TaskTableComponent } from './task-table/task-table.component';
+import { OperationActivityComponent } from './operation-activity/operation-activity.component';
 
 
 const routes: Routes = [
@@ -23,8 +24,13 @@ const routes: Routes = [
   { path: 'all-time', component: TimeTableComponent, canActivate: [AuthGuard] },
   { path: 'specialization', component: SpecializationComponent },
   { path: 'phasetask', component: PhasetaskComponent },
-  { path: '**', redirectTo: 'login' } ,// ✅ fallback
-  { path: 'taskform', component: TaskFormComponent}
+  { path: 'taskform', component: TaskFormComponent},
+  { 
+    path: 'operation-activity', 
+    component: OperationActivityComponent,
+    canActivate: [AuthGuard] 
+  },
+  { path: '**', redirectTo: 'login' } // ✅ fallback
 ];
 
 @NgModule({
