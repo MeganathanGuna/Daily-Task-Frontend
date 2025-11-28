@@ -294,6 +294,16 @@ export class ProjectComponent implements OnInit {
   });
 
   this.service.getProjects().subscribe(freshProjects => {
+    // === 1. Detect renamed projects ===
+    const renameMap = new Map<string, string>(); // oldName → newName
+
+    freshProjects.forEach(newProj => {
+      const oldProj = this.projects.find(p => p.id === newProj.id);
+      if (oldProj && oldProj.projectName !== newProj.projectName) {
+        renameMap.set(oldProj.projectName, newProj.projectName);
+        console.log(`Renamed: ${oldProj.projectName} → ${newProj.projectName}`);
+      }
+    });
     this.projects = freshProjects.sort((a, b) => {
       const dateA = a.assignedDate ? new Date(a.assignedDate).getTime() : 0;
       const dateB = b.assignedDate ? new Date(b.assignedDate).getTime() : 0;
@@ -310,6 +320,36 @@ export class ProjectComponent implements OnInit {
         this.triggerOperationHandover(newProj);
       }
     });
+    // === 3. RENAME TASKS IF NEEDED ===
+    if (renameMap.size > 0) {
+      this.service.getTasks().subscribe(allTasks => {
+        const tasksToUpdate: Task[] = [];
+
+        allTasks.forEach(task => {
+          if (renameMap.has(task.projectName)) {
+            tasksToUpdate.push({
+              ...task,
+              projectName: renameMap.get(task.projectName)!
+            });
+          }
+        });
+
+        if (tasksToUpdate.length > 0) {
+          tasksToUpdate.forEach(task => {
+            this.service.updateTask(task.id!, task).subscribe();
+          });
+
+          // Update local cache instantly
+          tasksToUpdate.forEach(task => {
+            const oldName = task.projectName;
+            const newName = renameMap.get(oldName)!;
+            delete Object.assign(this.projectTasksMap, {
+              [newName]: this.projectTasksMap[oldName] || []
+            })[oldName];
+          });
+        }
+      });
+    }
     // === 4. DETECT BRAND NEW PROJECTS (THIS WAS BROKEN BEFORE) ===
     const trulyNewProjects = freshProjects.filter(p =>
       p.id && !oldProjectsMap.has(p.id)
