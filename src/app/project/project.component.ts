@@ -310,7 +310,19 @@ export class ProjectComponent implements OnInit {
         this.triggerOperationHandover(newProj);
       }
     });
+    // === 4. DETECT BRAND NEW PROJECTS (THIS WAS BROKEN BEFORE) ===
+    const trulyNewProjects = freshProjects.filter(p =>
+      p.id && !oldProjectsMap.has(p.id)
+    );
 
+    console.log('New projects detected:', trulyNewProjects.map(p => p.projectName));
+
+    if (this.createDefaultTasks && trulyNewProjects.length > 0) {
+      console.log('Creating default tasks...');
+      trulyNewProjects.forEach(project => this.createAutoTasks(project));
+    } else if (trulyNewProjects.length > 0) {
+      console.log('Default tasks skipped — toggle was OFF');
+    }
     this.loadAllTasks();
     this.projects.forEach(p => this.loadTasksForProject(p.projectName));
     setTimeout(() => this.createDefaultTasks = true, 1000);
