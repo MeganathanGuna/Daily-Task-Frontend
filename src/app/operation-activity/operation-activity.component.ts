@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { TaskService, OperationProject, OperationTask } from '../task.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-operation-activity',
@@ -7,6 +8,15 @@ import { TaskService, OperationProject, OperationTask } from '../task.service';
   styleUrls: ['./operation-activity.component.css']
 })
 export class OperationActivityComponent implements OnInit {
+  userName: string = '';
+  userRole: string = '';
+  menuOpen = false;
+  showAccountForm = false;
+  showProjectForm = false;
+  editingProject: any = null;
+  showEditTask = false;           // ← NEW: For Edit Modal
+  editingTask: OperationTask | null = null;
+  isPM: boolean = false;
   projectNames: string[] = [];
   selectedProject = '';
   tasks: OperationTask[] = [];
@@ -22,9 +32,24 @@ export class OperationActivityComponent implements OnInit {
   selectedStatus: string | null = null;
   today = new Date().toISOString().split('T')[0];
 
-  constructor(private taskService: TaskService) {}
+  constructor(private taskService: TaskService, private router: Router) {}
 
   ngOnInit(): void {
+    const storedUserName = localStorage.getItem('userName');
+    const storedUserRole = localStorage.getItem('userRole');
+    const storedIsPM = localStorage.getItem('pm') || localStorage.getItem('PM');
+
+    if (!storedUserName || !storedUserRole) {
+      this.router.navigate(['/login']);
+      return;
+    }
+
+    this.userName = storedUserName;
+    this.userRole = storedUserRole;
+
+    console.log('User Info:', {
+      userName: this.userName,
+    });
     this.loadEmployees();
     this.loadProjectNames();
   }
@@ -43,10 +68,51 @@ export class OperationActivityComponent implements OnInit {
       }
     });
   }
+  toggleMenu() {
+    this.menuOpen = !this.menuOpen;
+  }
 
   selectProject(name: string) {
     this.selectedProject = name;
     this.loadTasks();
+  }
+
+  openAccountForm() {
+    if (this.userRole === 'Admin') this.showAccountForm = true;
+    else alert('You don’t have access.');
+  }
+  closeAccountForm() {
+    this.showAccountForm = false;
+    this.loadProjectNames();
+  }
+   goToAllTasks() {
+    this.router.navigate(['/dashboard']);
+  }
+
+  logout() {
+    localStorage.clear();
+    this.router.navigate(['/login']);
+  }
+
+  goHome() {
+    this.router.navigate(['/']);
+  }
+
+   openForm() {
+    if (this.userRole === 'Admin' || this.isPM) {
+      this.editingProject = null;
+      this.showProjectForm = true;
+    } else alert('You don’t have access to add projects.');
+  }
+
+  editProject(project: any) {
+    if (this.userRole === 'Admin') {
+      this.editingProject = { ...project, limitedEdit: false };
+      this.showProjectForm = true;
+    } else if (this.isPM && project.pmName === this.userName) {
+      this.editingProject = { ...project, limitedEdit: true };
+      this.showProjectForm = true;
+    } else alert('You don’t have access to edit this project.');
   }
 
   loadTasks() {
@@ -121,6 +187,25 @@ export class OperationActivityComponent implements OnInit {
         this.newTask = this.resetTask();
       },
       error: () => alert('Failed to create task')
+    });
+  }
+  // ← NEW: OPEN EDIT MODAL WITH EXISTING DATA
+  openEditTask(task: OperationTask) {
+    this.editingTask = { ...task };
+    this.showEditTask = true;
+  }
+
+  // ← NEW: SAVE UPDATED TASK
+  saveEditedTask() {
+    if (!this.editingTask || !this.editingTask.id) return;
+
+    this.taskService.updateOperationTask(this.editingTask.id, this.editingTask).subscribe({
+      next: () => {
+        this.loadTasks();
+        this.showEditTask = false;
+        this.editingTask = null;
+      },
+      error: () => alert('Failed to update task')
     });
   }
 

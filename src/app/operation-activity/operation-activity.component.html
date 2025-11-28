@@ -1,4 +1,39 @@
 <div class="admin-operation-container">
+    <!-- Floating Header -->
+  <div class="floating-header">
+    <div class="header-left">
+      <h1>Operation Activity</h1>
+    </div>
+    <div class="header-right">
+      <span class="welcome-text">Welcome, {{ userName }}</span>
+      <button class="hamburger-btn" (click)="toggleMenu()">
+        <i class="bi bi-list"></i>
+      </button>
+    </div>
+  </div>
+
+  <!-- Floating Menu -->
+  <div class="floating-menu" [class.open]="menuOpen">
+    <button class="menu-item" routerLink="/specialization">
+      <i class="bi bi-briefcase"></i> Specialization
+    </button>
+    <button *ngIf="userRole === 'Admin' || userRole === 'Employee' || isPM"
+            class="menu-item" routerLink="/add-time">
+      <i class="bi bi-clock-history"></i> Time Management
+    </button>
+    <button class="menu-item" routerLink="/operation-activity" routerLinkActive="active">
+  <i class="bi bi-gear-fill"></i> Operation Activity
+</button>
+    
+    <button class="menu-item" (click)="goToAllTasks()">
+      <i class="bi bi-card-list"></i> All Tasks
+    </button>
+    <button class="menu-item" (click)="goHome()">
+      <i class="bi bi-house-door-fill"></i> Home
+    </button>
+    <button class="menu-item logout" (click)="logout()">Logout</button>
+  </div>
+
 
   <!-- Sidebar -->
   <div class="sidebar">
@@ -36,6 +71,8 @@
         <select class="filter-select" [(ngModel)]="selectedStatus" (change)="groupTasksByMonth()">
           <option [ngValue]="null">Status: All Status</option>
           <option value="Open">Open</option>
+          <option value="WIP">WIP</option>
+          <option value="Validate">Validate</option>
           <option value="Completed">Completed</option>
         </select>
       </div>
@@ -86,8 +123,9 @@
                   {{ task.dueDate ? (task.dueDate | date:'dd-MM-yyyy') : '—' }}
                 </td>
                 <td>
-                  <button class="edit-btn" (click)="updateStatus(task)">
-                    {{ task.status === 'Completed' ? 'Reopen' : 'Complete' }}
+                  
+                  <button class="edit-icon-btn" (click)="openEditTask(task)" title="Edit Task">
+                    Edit
                   </button>
                 </td>
               </tr>
@@ -169,4 +207,53 @@
       </div>
     </div>
   </div>
+  <!-- Edit Task Modal -->
+<div class="modal-overlay" *ngIf="showEditTask" (click)="showEditTask = false"></div>
+<div class="custom-modal task-modal" *ngIf="showEditTask && editingTask">
+  <div class="modal-card">
+    <h3>Edit Task</h3>
+    <div class="form-grid">
+      <div class="form-group">
+        <label>Task Name <span class="required">*</span></label>
+        <input [(ngModel)]="editingTask.taskName" placeholder="Enter task name" />
+      </div>
+      <div class="form-group">
+        <label>Assigned To <span class="required">*</span></label>
+        <select [(ngModel)]="editingTask.assignedTo">
+          <option value="">Select employee</option>
+          <option *ngFor="let emp of allEmployees" [value]="emp">{{ emp }}</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Status</label>
+        <select [(ngModel)]="editingTask.status">
+          <option value="Open">Open</option>
+          <option value="WIP">WIP</option>
+          <option value="Validate">Validate</option>
+          <option value="Completed">Completed</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Assigned Date</label>
+        <input type="date" [(ngModel)]="editingTask.assignedDate" />
+      </div>
+      <div class="form-group">
+        <label>Due Date</label>
+        <input type="date" [(ngModel)]="editingTask.dueDate" />
+      </div>
+      <div class="form-group">
+        <label>Link (optional)</label>
+        <input [(ngModel)]="editingTask.link" placeholder="https://..." />
+      </div>
+      <div class="form-group full-width">
+        <label>Remarks (optional)</label>
+        <textarea [(ngModel)]="editingTask.remarks" rows="3"></textarea>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-cancel" (click)="showEditTask = false">Cancel</button>
+      <button class="btn-save" (click)="saveEditedTask()">Update Task</button>
+    </div>
+  </div>
+</div>
 </div>
