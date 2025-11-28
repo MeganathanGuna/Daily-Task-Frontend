@@ -100,7 +100,24 @@ export class ProjectComponent implements OnInit {
       setTimeout(() => this.openPopup(), 600);
       sessionStorage.setItem('welcomePopupShown', 'true');
     }
+    this.startGlobalMonthlyScheduler();
   }
+
+  private startGlobalMonthlyScheduler() {
+  if (!(window as any).monthlySchedulerStarted) {
+    (window as any).monthlySchedulerStarted = true;
+
+    // Check all Operation Handover projects
+    this.service.getProjects().subscribe(projects => {
+      const handoverProjects = projects.filter(p => p.phases === 'Operation Handover');
+      handoverProjects.forEach(p => {
+        this.scheduleNextMonthTaskCreation(p.projectName);
+      });
+    });
+
+    // Also listen for new handovers
+    // (You can enhance later with WebSocket or polling)
+  }}
 
   toggleDropdown(type: 'pm' | 'status' | 'phase') {
     switch (type) {
@@ -270,22 +287,13 @@ export class ProjectComponent implements OnInit {
   this.showProjectForm = false;
   this.editingProject = null;
 
-  // Capture old project IDs BEFORE updating the list
-  const oldProjectIds = new Set(this.projects.map(p => p.id).filter(id => id != null));
+  // Save old projects to compare phase changes
+  const oldProjectsMap = new Map<number, Project>();
+  this.projects.forEach(p => {
+    if (p.id) oldProjectsMap.set(p.id, p);
+  });
 
   this.service.getProjects().subscribe(freshProjects => {
-    // === 1. Detect renamed projects ===
-    const renameMap = new Map<string, string>(); // oldName → newName
-
-    freshProjects.forEach(newProj => {
-      const oldProj = this.projects.find(p => p.id === newProj.id);
-      if (oldProj && oldProj.projectName !== newProj.projectName) {
-        renameMap.set(oldProj.projectName, newProj.projectName);
-        console.log(`Renamed: ${oldProj.projectName} → ${newProj.projectName}`);
-      }
-    });
-
-    // === 2. Update main list (with correct sort) ===
     this.projects = freshProjects.sort((a, b) => {
       const dateA = a.assignedDate ? new Date(a.assignedDate).getTime() : 0;
       const dateB = b.assignedDate ? new Date(b.assignedDate).getTime() : 0;
@@ -295,63 +303,134 @@ export class ProjectComponent implements OnInit {
     this.filteredProjects = [...this.projects];
     this.applyFilters();
 
-    // === 3. RENAME TASKS IF NEEDED ===
-    if (renameMap.size > 0) {
-      this.service.getTasks().subscribe(allTasks => {
-        const tasksToUpdate: Task[] = [];
+    // ONLY DETECT PHASE CHANGE → TRIGGER OPERATION HANDOVER
+    freshProjects.forEach(newProj => {
+      const oldProj = oldProjectsMap.get(newProj.id!);
+      if (oldProj && oldProj.phases !== 'Operation Handover' && newProj.phases === 'Operation Handover') {
+        this.triggerOperationHandover(newProj);
+      }
+    });
 
-        allTasks.forEach(task => {
-          if (renameMap.has(task.projectName)) {
-            tasksToUpdate.push({
-              ...task,
-              projectName: renameMap.get(task.projectName)!
-            });
-          }
-        });
-
-        if (tasksToUpdate.length > 0) {
-          tasksToUpdate.forEach(task => {
-            this.service.updateTask(task.id!, task).subscribe();
-          });
-
-          // Update local cache instantly
-          tasksToUpdate.forEach(task => {
-            const oldName = task.projectName;
-            const newName = renameMap.get(oldName)!;
-            delete Object.assign(this.projectTasksMap, {
-              [newName]: this.projectTasksMap[oldName] || []
-            })[oldName];
-          });
-        }
-      });
-    }
-
-    // === 4. DETECT BRAND NEW PROJECTS (THIS WAS BROKEN BEFORE) ===
-    const trulyNewProjects = freshProjects.filter(p =>
-      p.id && !oldProjectIds.has(p.id)
-    );
-
-    console.log('New projects detected:', trulyNewProjects.map(p => p.projectName));
-
-    if (this.createDefaultTasks && trulyNewProjects.length > 0) {
-      console.log('Creating default tasks...');
-      trulyNewProjects.forEach(project => this.createAutoTasks(project));
-    } else if (trulyNewProjects.length > 0) {
-      console.log('Default tasks skipped — toggle was OFF');
-    }
-
-    // === 5. Final refresh ===
     this.loadAllTasks();
     this.projects.forEach(p => this.loadTasksForProject(p.projectName));
-
-    // Reset toggle to ON for next time
     setTimeout(() => this.createDefaultTasks = true, 1000);
   });
 }
+  private triggerOperationHandover(project: Project) {
+  const projectName = project.projectName;
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
 
+  console.log(`Operation Handover detected → Starting monthly tasks for: ${projectName}`);
+
+  // 1. Create Operation Project (once)
+  this.service.createOperationProject({ projectName }).subscribe({
+    error: () => console.log('Project already exists')
+  });
+
+  // 2. Create tasks for CURRENT month (if not already created)
+  this.createTasksForMonth(projectName, this.getCurrentMonthDate());
+
+  // 3. Schedule future months (every 2nd at 00:00)
+  this.scheduleNextMonthTaskCreation(projectName);
+}
+
+private getCurrentMonthDate(): Date {
+  const now = new Date();
+  return new Date(now.getFullYear(), now.getMonth(), 2); // 2nd of current month
+}
+
+private createTasksForMonth(projectName: string, monthDate: Date) {
+  const year = monthDate.getFullYear();
+  const month = monthDate.getMonth();
+  const assignedDate = monthDate.toISOString().split('T')[0];
+  const monthStr = monthDate.toLocaleString('default', { month: 'long', year: 'numeric' });
+
+  // Check if tasks already exist for this month
+  this.service.getOperationTasksByProject(projectName).subscribe(existingTasks => {
+    const alreadyExists = existingTasks.some(t =>
+      t.assignedDate === assignedDate &&
+      t.remarks?.includes('Auto recurring')
+    );
+
+    if (alreadyExists) {
+      console.log(`Tasks already exist for ${monthStr}`);
+      return;
+    }
+
+    console.log(`Creating 8 tasks for ${monthStr}`);
+
+    const tasks = this.generate8Tasks(projectName, assignedDate, year, month);
+    tasks.forEach(task => {
+      this.service.createOperationTask(task).subscribe({
+        next: () => console.log(`Created: ${task.taskName} - ${assignedDate}`),
+        error: () => {}
+      });
+    });
+  });
+}
+
+private generate8Tasks(projectName: string, assignedDate: string, year: number, month: number): any[] {
+  const getNthWeekend = (week: number): string => {
+    let weekends = 0;
+    let d = new Date(year, month, 1);
+    while (weekends < week) {
+      if (d.getDay() === 0 || d.getDay() === 6) weekends++;
+      if (weekends < week) d.setDate(d.getDate() + 1);
+    }
+    while (d.getDay() !== 0 && d.getDay() !== 6) d.setDate(d.getDate() + 1);
+    return d.toISOString().split('T')[0];
+  };
+
+  return [
+    { name: 'Daily checklist Server/Pod',    week: 1 },
+    { name: 'Security port',                 week: 1 },
+    { name: 'CMDB Report',                   week: 2 },
+    { name: 'Vulnerability report',          week: 2 },
+    { name: 'IAM Audit',                     week: 3 },
+    { name: 'Server Audit',                  week: 3 },
+    { name: 'Compute optimization',         week: 4 },
+    { name: 'OS patching',                  week: 4 }
+  ].map(t => ({
+    taskName: t.name,
+    assignedTo: 'Default Task',
+    status: 'Open',
+    assignedDate,
+    dueDate: getNthWeekend(t.week),
+    link: '',
+    remarks: `Auto recurring - ${new Date(assignedDate).toLocaleString('default', { month: 'long', year: 'numeric' })}`,
+    operationProject: { projectName }
+  }));
+}
   toggleMenu() {
     this.menuOpen = !this.menuOpen;
   }
+  private scheduleNextMonthTaskCreation(projectName: string) {
+  const checkAndSchedule = () => {
+    const now = new Date();
+    const today = now.getDate();
+    const hour = now.getHours();
+
+    // Run only on 2nd of month, at 00:05 AM
+    if (today === 2 && hour === 0) {
+      const nextMonth = new Date(now.getFullYear(), now.getMonth() + 1, 2);
+      this.createTasksForMonth(projectName, nextMonth);
+    }
+
+    // Re-schedule for tomorrow
+    setTimeout(checkAndSchedule, 24 * 60 * 60 * 1000); // 24 hours
+  };
+
+  // Start checking from now
+  setTimeout(checkAndSchedule, this.getMsUntilNextMidnight());
+}
+
+private getMsUntilNextMidnight(): number {
+  const now = new Date();
+  const midnight = new Date(now);
+  midnight.setHours(24, 0, 0, 0);
+  return midnight.getTime() - now.getTime();
+}
 
   getProgress(project: Project): number {
     const tasks = this.projectTasksMap[project.projectName] || [];
