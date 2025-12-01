@@ -11,7 +11,7 @@ export class ProjectComponent implements OnInit {
   userName: string = '';
   userRole: string = '';
   isPM: boolean = false;
-
+  showDetailedView = true;
   editingProject: any = null;
   projects: Project[] = [];
   filteredProjects: Project[] = [];
@@ -40,7 +40,7 @@ export class ProjectComponent implements OnInit {
   searchText: string = '';
 
   totalAccounts = 0;
-
+  displayedUser: string = '';
   // Summary counts
   totalProjects = 0;
   assignedProjects = 0;
@@ -86,7 +86,7 @@ export class ProjectComponent implements OnInit {
     this.userName = storedUserName;
     this.userRole = storedUserRole;
     this.isPM = storedIsPM === 'true';
-
+    this.displayedUser = this.userName
     console.log('User Info:', {
       userName: this.userName,
       userRole: this.userRole,
@@ -161,6 +161,14 @@ export class ProjectComponent implements OnInit {
   closeTasksPopup() {
     this.selectedProjectForTasks = null;
   }
+
+  toggleDetailedView() {
+  this.showDetailedView = !this.showDetailedView;
+  if (this.showDetailedView) {
+    // Preload tasks for all visible projects
+    this.filteredProjects.forEach(p => this.loadTasksForProject(p.projectName));
+  }
+}
 
   loadProjects() {
     this.service.getProjects().subscribe(projects => {
@@ -628,6 +636,17 @@ private getMsUntilNextMidnight(): number {
     this.applyFilters();
   }
 
+  getSummaryTitle(): string {
+    if (this.selectedPMs.length === 1) {
+      return `Summary for: ${this.displayedUser}`;
+    } else if (this.selectedPMs.length > 1) {
+      return `Summary for: Multiple PMs`;
+    } else {
+      return `Your Summary`;
+    }
+  }
+
+
   applyFilters() {
     this.filteredProjects = this.projects.filter(p => {
       const accountMatch = this.selectedAccount
@@ -647,6 +666,69 @@ private getMsUntilNextMidnight(): number {
     const dateB = b.assignedDate ? new Date(b.assignedDate).getTime() : 0;
     return dateB - dateA;
   });
+  // DETERMINE WHOSE STATS TO SHOW
+    if (this.selectedPMs.length === 1) {
+      this.displayedUser = this.selectedPMs[0];
+    } else if (this.selectedPMs.length > 1) {
+      this.displayedUser = 'Multiple PMs';
+    } else {
+      this.displayedUser = this.userName; // No filter → show logged-in user
+    }
+
+    this.updateSummaryForDisplayedUser();
+  }
+  private updateSummaryForDisplayedUser() {
+    const targetUser = this.displayedUser;
+
+    if (targetUser === 'Multiple PMs') {
+      // Show totals across all selected PMs
+      const pmSet = new Set(this.selectedPMs);
+      const relevantProjects = this.projects.filter(p => pmSet.has(p.pmName));
+      const relevantProjectNames = new Set(relevantProjects.map(p => p.projectName));
+
+      this.assignedProjects = relevantProjects.length;
+      this.openProjects = relevantProjects.filter(p => p.status === 'Open').length;
+      this.wipProjects = relevantProjects.filter(p => p.status === 'WIP').length;
+      this.completedProjects = relevantProjects.filter(p => p.status === 'Completed').length;
+
+      // Tasks belonging to these projects and assigned to any of the selected PMs
+      const userTasks = this.allTasks.filter(t => {
+        const taskProject = t.projectName;
+        const assignedUser = t.role?.split(' - ')[1]?.trim();
+        return relevantProjectNames.has(taskProject) && pmSet.has(assignedUser);
+      });
+
+      this.assignedTasks = userTasks.length;
+      this.openTasks = userTasks.filter(t => t.status === 'Open').length;
+      this.wipTasks = userTasks.filter(t => t.status === 'WIP').length;
+      this.completedTasks = userTasks.filter(t => t.status === 'Completed').length;
+
+    } else {
+      // Single user (either logged-in or one selected PM)
+      const relevantProjects = this.projects.filter(p => p.pmName === targetUser);
+
+      this.assignedProjects = relevantProjects.length;
+      this.openProjects = relevantProjects.filter(p => p.status === 'Open').length;
+      this.wipProjects = relevantProjects.filter(p => p.status === 'WIP').length;
+      this.completedProjects = relevantProjects.filter(p => p.status === 'Completed').length;
+
+      const userTasks = this.allTasks.filter(t => {
+        const assignedUser = t.role?.split(' - ')[1]?.trim()?.toLowerCase();
+        return assignedUser === targetUser.toLowerCase();
+      });
+
+      this.assignedTasks = userTasks.length;
+      this.openTasks = userTasks.filter(t => t.status === 'Open').length;
+      this.wipTasks = userTasks.filter(t => t.status === 'WIP').length;
+      this.completedTasks = userTasks.filter(t => t.status === 'Completed').length;
+    }
+
+    // Optional: Update totalProjects & totalTasks to reflect filtered view
+    this.totalProjects = this.filteredProjects.length;
+    this.totalTasks = this.allTasks.filter(t => {
+      const taskProject = t.projectName;
+      return this.filteredProjects.some(p => p.projectName === taskProject);
+    }).length;
   }
 
   openForm() {
