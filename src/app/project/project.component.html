@@ -215,7 +215,7 @@
     <div class="projects-body">
       <ng-container *ngFor="let project of filteredProjects; let i = index">
         <!-- Project Row -->
-        <div class="project-row">
+        <div class="project-row" (click)="openProjectTasks(project)" style="cursor: pointer;">
           <div class="cell account">{{ project.account?.accountName || project.accountName || '—' }}</div>
           <div class="cell project">
             <strong>{{ project.projectName }}</strong>
@@ -229,17 +229,19 @@
           <div class="cell phase">{{ project.phases }}</div>
           <div class="cell assigned">{{ formatDate(project.assignedDate) }}</div>
           <div class="cell remarks">{{ project.remarks || '—' }}</div>
-          <div class="cell actions">
-            <button class="action-btn expand-btn" (click)="toggleTasks(project.projectName)">
-              <i class="bi" 
-                 [class.bi-dash]="expandedProjects.has(project.projectName)"
-                 [class.bi-plus]="!expandedProjects.has(project.projectName)"></i>
-            </button>
-            <button *ngIf="userRole === 'Admin' || project.pmName === userName"
-                    class="action-btn edit-btn" (click)="editProject(project)">
-              <i class="bi bi-pencil"></i>
-            </button>
-          </div>
+          <div class="cell actions" (click)="$event.stopPropagation()">
+  <button class="action-btn expand-btn" 
+          (click)="toggleTasks(project.projectName); $event.stopPropagation()">
+    <i class="bi" 
+       [class.bi-dash]="expandedProjects.has(project.projectName)"
+       [class.bi-plus]="!expandedProjects.has(project.projectName)"></i>
+  </button>
+  <button *ngIf="userRole === 'Admin' || project.pmName === userName"
+          class="action-btn edit-btn" 
+          (click)="editProject(project); $event.stopPropagation()">
+    <i class="bi bi-pencil"></i>
+  </button>
+</div>
         </div>
 
         <!-- Task Sub-Header (Blue) -->

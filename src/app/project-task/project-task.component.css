@@ -1,0 +1,174 @@
+/* ==========================================================
+   PROJECT TASKS PAGE - PERFECT VISIBILITY & WORD WRAP (2025 FINAL)
+========================================================== */
+.tasks-page {
+  padding: 2rem;
+  background: #1a1a1a;
+  min-height: 100vh;
+  color: #e0e0e0;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid #333;
+}
+
+h2 {
+  font-size: 1.6rem;
+  color: #0d6efd;
+  font-weight: 600;
+}
+
+.back-btn {
+  background: #333;
+  color: white;
+  border: 1px solid #444;
+  padding: 10px 20px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: all 0.2s;
+}
+.back-btn:hover {
+  background: #0d6efd;
+  border-color: #0d6efd;
+}
+
+/* Main Table Container */
+.tasks-table-container {
+  overflow-x: auto;
+  border: 1px solid #444;
+  border-radius: 12px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+  background: #1e1e1e;
+}
+
+/* Table Styling */
+.tasks-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.92rem;
+}
+
+.tasks-table th {
+  background: #222;
+  color: #0d6efd !important;           /* Bright blue like your screenshot */
+  padding: 14px 12px;
+  text-align: left;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  border-bottom: 2px solid #0d6efd;
+  white-space: nowrap;
+}
+
+.tasks-table td {
+  padding: 12px;
+  border-bottom: 1px solid #333;
+  vertical-align: top;
+  color: #e0e0e0;
+}
+
+.tasks-table tr:hover {
+  background: #252525;
+  transition: background 0.2s;
+}
+
+/* Actions Column */
+.tasks-table td:first-child {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+input[type="checkbox"] {
+  accent-color: #0d6efd;
+  transform: scale(1.1);
+  cursor: pointer;
+}
+
+.edit-icon {
+  background: none;
+  border: none;
+  color: #aaa;
+  cursor: pointer;
+  font-size: 1rem;
+  padding: 4px;
+  border-radius: 4px;
+  transition: all 0.2s;
+}
+.edit-icon:hover {
+  color: #ffc107;
+  background: rgba(255,193,7,0.1);
+}
+
+/* Status Badges - EXACT COLORS FROM YOUR SCREENSHOT */
+.status-badge {
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  min-width: 70px;
+  text-align: center;
+}
+.status-badge.open {
+  background: #28a745;
+  color: white;
+}
+.status-badge.wip {
+  background: #ffc107;
+  color: black;
+}
+.status-badge.completed {
+  background: #17a2b8;
+  color: white;
+}
+
+/* Word Wrap for Long Text Columns */
+td:nth-child(2),  /* Project */
+td:nth-child(3),  /* Task */
+td:nth-child(4),  /* Role */
+td:nth-child(6)   /* Remarks */
+{
+  white-space: normal !important;
+  word-wrap: break-word;
+  overflow-wrap: anywhere;
+  line-height: 1.5;
+  max-width: 300px;
+}
+
+/* Remarks - Slightly Dimmed */
+td:nth-child(6) {
+  color: #bbbbbb;
+  font-size: 0.88rem;
+}
+
+/* Overdue Date - Red */
+.overdue {
+  color: #ff4444 !important;
+  font-weight: bold;
+}
+
+/* No Tasks Message */
+.no-tasks {
+  text-align: center;
+  padding: 3rem;
+  color: #666;
+  font-style: italic;
+  font-size: 1.1rem;
+}
+
+/* Responsive */
+@media (max-width: 1200px) {
+  .tasks-table th,
+  .tasks-table td {
+    padding: 10px 8px;
+    font-size: 0.88rem;
+  }
+}

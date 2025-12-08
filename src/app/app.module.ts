@@ -30,6 +30,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatOptionModule } from '@angular/material/core';
 import { OperationActivityComponent } from './operation-activity/operation-activity.component';
+import { ProjectTaskComponent } from './project-task/project-task.component';
 
 
 @NgModule({
@@ -49,6 +50,7 @@ import { OperationActivityComponent } from './operation-activity/operation-activ
     SpecializationComponent,
     PhasetaskComponent,
     OperationActivityComponent,
+    ProjectTaskComponent,
   ],
   imports: [
     BrowserModule,

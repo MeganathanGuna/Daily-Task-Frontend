@@ -575,25 +575,65 @@ private getMsUntilNextMidnight(): number {
   closePopup() { this.showPopup = false; this.popupDocked = true; }
 
   showAssignedProjects() {
+    if (this.selectedPMs.length === 1) {
+    this.filteredProjects = this.projects.filter(p => p.pmName === this.selectedPMs[0]);
+  } else {
     this.filteredProjects = this.projects.filter(p => p.pmName === this.userName);
   }
+}
 
   showOpenProjects() {
+    if (this.selectedPMs.length === 1) {
+    this.filteredProjects = this.projects.filter(p => p.status === 'Open' && p.pmName === this.selectedPMs[0]);
+  } else {
     this.filteredProjects = this.projects.filter(p => p.status === 'Open' && p.pmName === this.userName);
   }
+}
 
   showWipProjects() {
+    if (this.selectedPMs.length === 1) {
+    this.filteredProjects = this.projects.filter(p => p.status === 'WIP' && p.pmName === this.selectedPMs[0]);
+  } else {
     this.filteredProjects = this.projects.filter(p => p.status === 'WIP' && p.pmName === this.userName);
   }
+}
 
   showCompletedProjects() {
+    if (this.selectedPMs.length === 1) {
+    this.filteredProjects = this.projects.filter(p => p.status === 'Completed' && p.pmName === this.selectedPMs[0]);
+  } else {
     this.filteredProjects = this.projects.filter(p => p.status === 'Completed' && p.pmName === this.userName);
   }
+}
 
-  showOpenTasks() { this.filterTasksByStatus('Open'); }
-  showWipTasks() { this.filterTasksByStatus('WIP'); }
-  showCompletedTasks() { this.filterTasksByStatus('Completed'); }
-  showAssignedTasks() { this.filterTasksByStatus('All'); } // FIXED
+  showOpenTasks() {
+    if (this.selectedPMs.length === 1) {
+    this.filterTasksByStatusAndPM('Open', this.selectedPMs[0]);
+  } else {
+    this.filterTasksByStatus('Open');
+  }
+}
+  showWipTasks() { 
+    if (this.selectedPMs.length === 1) {
+    this.filterTasksByStatusAndPM('WIP', this.selectedPMs[0]);
+  } else {
+    this.filterTasksByStatus('WIP');
+  }
+}
+  showCompletedTasks() { 
+    if (this.selectedPMs.length === 1) {
+    this.filterTasksByStatusAndPM('Completed', this.selectedPMs[0]);
+  } else {
+    this.filterTasksByStatus('Completed');
+  }
+}
+  showAssignedTasks() { 
+    if (this.selectedPMs.length === 1) {
+    this.filterTasksByStatusAndPM('All', this.selectedPMs[0]);
+  } else {
+    this.filterTasksByStatus('All');
+  }
+}
 
   toggleStatus(status: string) {
     this.selectedStatuses = this.selectedStatuses.includes(status)
@@ -601,6 +641,10 @@ private getMsUntilNextMidnight(): number {
       : [...this.selectedStatuses, status];
     this.applyFilters();
   }
+
+  openProjectTasks(project: Project) {
+  this.router.navigate(['/project-tasks', project.projectName]);
+}
 
   togglePM(pm: string) {
     this.selectedPMs = this.selectedPMs.includes(pm)
@@ -645,8 +689,30 @@ private getMsUntilNextMidnight(): number {
       return `Your Summary`;
     }
   }
+  // ADD THIS NEW HELPER METHOD (anywhere in the class)
+private filterTasksByStatusAndPM(status: string, pmName: string) {
+  const userTasks = this.allTasks.filter(t => {
+    const assignedUser = t.role?.split(' - ')[1]?.trim();
+    return assignedUser === pmName;
+  });
 
+  const filtered = status === 'All' ? userTasks : userTasks.filter(t => t.status === status);
 
+  this.filteredTasks = filtered;
+
+  // Rebuild projectTasksMap based on filtered tasks
+  this.projectTasksMap = {};
+  filtered.forEach(t => {
+    if (!this.projectTasksMap[t.projectName]) {
+      this.projectTasksMap[t.projectName] = [];
+    }
+    this.projectTasksMap[t.projectName].push(t);
+  });
+
+  // Update visible projects in detailed view
+  const visibleProjectNames = new Set(filtered.map(t => t.projectName));
+  this.filteredProjects = this.projects.filter(p => visibleProjectNames.has(p.projectName));
+}
   applyFilters() {
     this.filteredProjects = this.projects.filter(p => {
       const accountMatch = this.selectedAccount
