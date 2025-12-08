@@ -1,0 +1,48 @@
+<div class="tasks-page">
+  <div class="header">
+    <h2>Tasks for {{ projectName }}</h2>
+    <button class="back-btn" (click)="goBack()">Back to Projects</button>
+  </div>
+
+  <div class="tasks-table-container">
+    <table class="tasks-table">
+      <thead>
+        <tr>
+          <th>Actions</th>
+          <th>Project</th>
+          <th>Task</th>
+          <th>Role</th>
+          <th>Status</th>
+          <th>Remarks</th>
+          <th>Assigned</th>
+          <th>Due</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let task of tasks" [class.auto-task]="task.remarks?.includes('Auto created')">
+          <td>
+            <button *ngIf="canEditTask(task)" class="edit-icon" (click)="editTask(task)">
+              <i class="bi bi-pencil"></i>
+            </button>
+          </td>
+          <td>{{ projectName }}</td>
+          <td>{{ task.projectTitle || task.projectTitle }}</td>
+          <td>{{ task.role || 'Default Task - Created - UDHAY' }}</td>
+          <td>
+            <span class="status-badge" [ngClass]="(task.status || 'Open').toLowerCase()">
+              {{ task.status || 'Open' }}
+            </span>
+          </td>
+          <td class="remarks">{{ task.remarks || '—' }}</td>
+          <td>{{ formatDate(task.assignedDate) }}</td>
+          <td [class.overdue]="isOverdue(task)">
+            {{ formatDate(task.endDate) }}
+          </td>
+        </tr>
+        <tr *ngIf="!tasks.length">
+          <td colspan="8" class="no-tasks">No tasks for this project</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>

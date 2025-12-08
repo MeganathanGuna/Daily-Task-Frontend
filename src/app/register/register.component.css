@@ -1,0 +1,21 @@
+.card {
+  border-radius: 1rem;
+}
+.card h3 {
+  font-size: 1.5rem;
+  font-weight: bold;
+}
+.input-group-text {
+  background-color: #f1f1f1;
+}
+@media (max-width: 576px) {
+  .card {
+    padding: 1rem;
+  }
+  .card h3 {
+    font-size: 1.25rem;
+  }
+  .btn {
+    font-size: 0.9rem;
+  }
+}

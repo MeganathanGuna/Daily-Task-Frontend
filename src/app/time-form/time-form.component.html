@@ -1,0 +1,55 @@
+<app-time-navbar [userName]="userName"></app-time-navbar>
+<div class="container mt-4">
+  <h4 class="text-white mb-3">Add Time Allocation</h4>
+  <form [formGroup]="timeForm" (ngSubmit)="onSubmit()" novalidate>
+    <div class="row g-3">
+      <div class="col-md-3">
+        <label class="form-label">Project Name</label>
+        <input type="text" class="form-control" formControlName="projectName" />
+        <div class="text-danger" *ngIf="timeForm.get('projectName')?.touched && timeForm.get('projectName')?.invalid">
+          Project Name is required.
+        </div>
+      </div>
+
+      <div class="col-md-3">
+        <label class="form-label">Task Name</label>
+        <input type="text" class="form-control" formControlName="taskName" />
+        <div class="text-danger" *ngIf="timeForm.get('taskName')?.touched && timeForm.get('taskName')?.invalid">
+          Task Name is required.
+        </div>
+      </div>
+
+      <div class="col-md-3">
+        <label class="form-label">Date</label>
+        <input type="date" class="form-control" formControlName="date" />
+        <div class="text-danger" *ngIf="timeForm.get('date')?.touched && timeForm.get('date')?.invalid">
+          Date is required.
+        </div>
+      </div>
+
+      <div class="col-md-3">
+        <label class="form-label">Time Spent (Hours)</label>
+        <input
+          type="number"
+          class="form-control"
+          formControlName="hours"
+          min="0.1"
+          max="24"
+          step="0.1"
+        />
+        <div class="text-danger" *ngIf="timeForm.get('hours')?.touched && timeForm.get('hours')?.invalid">
+          <div *ngIf="timeForm.get('hours')?.errors?.['required']">Hours is required.</div>
+          <div *ngIf="timeForm.get('hours')?.errors?.['min']">Minimum hours is 0.1.</div>
+          <div *ngIf="timeForm.get('hours')?.errors?.['max']">Maximum hours is 24.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="mt-3 text-end">
+      <button type="submit" class="btn btn-success" [disabled]="timeForm.invalid">Add Allocation</button>
+      <button type="button" class="btn btn-secondary ms-2" (click)="onCancel()">Cancel</button>
+    </div>
+  </form>
+</div>
+
+

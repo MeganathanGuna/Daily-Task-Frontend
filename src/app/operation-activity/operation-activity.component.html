@@ -1,0 +1,259 @@
+<div class="admin-operation-container">
+    <!-- Floating Header -->
+  <div class="floating-header">
+    <div class="header-left">
+      <h1>Operation Activity</h1>
+    </div>
+    <div class="header-right">
+      <span class="welcome-text">Welcome, {{ userName }}</span>
+      <button class="hamburger-btn" (click)="toggleMenu()">
+        <i class="bi bi-list"></i>
+      </button>
+    </div>
+  </div>
+
+  <!-- Floating Menu -->
+  <div class="floating-menu" [class.open]="menuOpen">
+    <button class="menu-item" routerLink="/specialization">
+      <i class="bi bi-briefcase"></i> Specialization
+    </button>
+    <button *ngIf="userRole === 'Admin' || userRole === 'Employee' || isPM"
+            class="menu-item" routerLink="/add-time">
+      <i class="bi bi-clock-history"></i> Time Management
+    </button>
+    <button class="menu-item" routerLink="/operation-activity" routerLinkActive="active">
+  <i class="bi bi-gear-fill"></i> Operation Activity
+</button>
+    
+    <button class="menu-item" (click)="goToAllTasks()">
+      <i class="bi bi-card-list"></i> All Tasks
+    </button>
+    <button class="menu-item" (click)="goHome()">
+      <i class="bi bi-house-door-fill"></i> Home
+    </button>
+    <button class="menu-item logout" (click)="logout()">Logout</button>
+  </div>
+
+
+  <!-- Sidebar -->
+  <div class="sidebar">
+    <h5 class="sidebar-title">Projects</h5>
+    <div class="project-list">
+      <div *ngFor="let name of projectNames" 
+           class="project-item"
+           [class.active]="selectedProject === name"
+           (click)="selectProject(name)">
+        <span>{{ name }}</span>
+        <small class="count">({{ getTaskCount(name) }})</small>
+      </div>
+    </div>
+
+    <div class="fab-container">
+      <button class="fab-btn primary" (click)="showAddProject = true">
+        + Add Project
+      </button>
+      <button class="fab-btn secondary" (click)="showAddTask = true" [disabled]="!selectedProject">
+        + Add Task
+      </button>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <div class="main-area">
+    <div class="header">
+      <h2>Operation Activity Tasks</h2>
+      <div class="filters">
+        <select class="filter-select" [(ngModel)]="selectedEmployee" (change)="groupTasksByMonth()">
+          <option [ngValue]="null">Employee: All</option>
+          <option *ngFor="let emp of allEmployees" [ngValue]="emp">{{ emp }}</option>
+        </select>
+
+        <select class="filter-select" [(ngModel)]="selectedStatus" (change)="groupTasksByMonth()">
+          <option [ngValue]="null">Status: All Status</option>
+          <option value="Open">Open</option>
+          <option value="WIP">WIP</option>
+          <option value="Validate">Validate</option>
+          <option value="Completed">Completed</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Tasks Grouped by Month -->
+    <div class="tasks-container" 
+         *ngIf="(groupedTasks | keyvalue).length > 0; else noTasks">
+      
+      <div *ngFor="let group of groupedTasks | keyvalue : sortByMonthDesc">
+        <div class="month-header">
+          <h3>{{ group.key }}</h3>
+          <span class="task-count">
+            {{ group.value.length }} task{{ group.value.length !== 1 ? 's' : '' }}
+          </span>
+        </div>
+
+        <div class="table-wrapper">
+          <table class="tasks-table">
+            <thead>
+              <tr>
+                <th>Task Name</th>
+                <th>Assigned To</th>
+                <th>Status</th>
+                <th>Link</th>
+                <th>Assigned Date</th>
+                <th>Due Date</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let task of group.value">
+                <td>{{ task.taskName }}</td>
+                <td>{{ task.assignedTo }}</td>
+                <td>
+                  <span class="status-badge"
+                        [class.completed]="task.status === 'Completed'"
+                        [class.open]="task.status === 'Open'">
+                    {{ task.status }}
+                  </span>
+                </td>
+                <td>
+                  <a *ngIf="task.link" [href]="task.link" target="_blank" class="link">Link</a>
+                  <span *ngIf="!task.link">—</span>
+                </td>
+                <td>{{ task.assignedDate | date:'dd-MM-yyyy' }}</td>
+                <td [class.overdue]="isOverdue(task)">
+                  {{ task.dueDate ? (task.dueDate | date:'dd-MM-yyyy') : '—' }}
+                </td>
+                <td>
+                  
+                  <button class="edit-icon-btn" (click)="openEditTask(task)" title="Edit Task">
+                    Edit
+                  </button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <ng-template #noTasks>
+      <div class="no-data">
+        <p>No tasks found for the selected project and filters.</p>
+      </div>
+    </ng-template>
+  </div>
+
+  <!-- Add Project Modal -->
+  <div class="modal-overlay" *ngIf="showAddProject" (click)="showAddProject = false"></div>
+  <div class="custom-modal" *ngIf="showAddProject">
+    <div class="modal-card">
+      <h3>Add New Project</h3>
+      <div class="form-group">
+        <label>Project Name</label>
+        <input [(ngModel)]="newProjectName" placeholder="Enter project name" (keyup.enter)="addProject()" />
+      </div>
+      <div class="modal-footer">
+        <button class="btn-cancel" (click)="showAddProject = false">Cancel</button>
+        <button class="btn-save" (click)="addProject()">Save</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Add Task Modal -->
+  <div class="modal-overlay" *ngIf="showAddTask" (click)="showAddTask = false"></div>
+  <div class="custom-modal task-modal" *ngIf="showAddTask">
+    <div class="modal-card">
+      <h3>Add New Task</h3>
+      <div class="form-grid">
+        <div class="form-group">
+          <label>Task Name <span class="required">*</span></label>
+          <input [(ngModel)]="newTask.taskName" placeholder="Enter task name" />
+        </div>
+        <div class="form-group">
+          <label>Assigned To <span class="required">*</span></label>
+          <select [(ngModel)]="newTask.assignedTo">
+            <option value="">Select employee</option>
+            <option *ngFor="let emp of allEmployees" [value]="emp">{{ emp }}</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Status</label>
+          <select [(ngModel)]="newTask.status">
+            <option value="Open">Open</option>
+            <option value="WIP">WIP</option>
+            <option value="Validate">Validate</option>
+            <option value="Completed">Completed</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Assigned Date</label>
+          <input type="date" [(ngModel)]="newTask.assignedDate" />
+        </div>
+        <div class="form-group">
+          <label>Due Date</label>
+          <input type="date" [(ngModel)]="newTask.dueDate" />
+        </div>
+        <div class="form-group">
+          <label>Link (optional)</label>
+          <input [(ngModel)]="newTask.link" placeholder="https://..." />
+        </div>
+        <div class="form-group full-width">
+          <label>Remarks (optional)</label>
+          <textarea [(ngModel)]="newTask.remarks" rows="3"></textarea>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-cancel" (click)="showAddTask = false; newTask = resetTask()">Cancel</button>
+        <button class="btn-save" (click)="addTask()">Save Task</button>
+      </div>
+    </div>
+  </div>
+  <!-- Edit Task Modal -->
+<div class="modal-overlay" *ngIf="showEditTask" (click)="showEditTask = false"></div>
+<div class="custom-modal task-modal" *ngIf="showEditTask && editingTask">
+  <div class="modal-card">
+    <h3>Edit Task</h3>
+    <div class="form-grid">
+      <div class="form-group">
+        <label>Task Name <span class="required">*</span></label>
+        <input [(ngModel)]="editingTask.taskName" placeholder="Enter task name" />
+      </div>
+      <div class="form-group">
+        <label>Assigned To <span class="required">*</span></label>
+        <select [(ngModel)]="editingTask.assignedTo">
+          <option value="">Select employee</option>
+          <option *ngFor="let emp of allEmployees" [value]="emp">{{ emp }}</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Status</label>
+        <select [(ngModel)]="editingTask.status">
+          <option value="Open">Open</option>
+          <option value="WIP">WIP</option>
+          <option value="Validate">Validate</option>
+          <option value="Completed">Completed</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Assigned Date</label>
+        <input type="date" [(ngModel)]="editingTask.assignedDate" />
+      </div>
+      <div class="form-group">
+        <label>Due Date</label>
+        <input type="date" [(ngModel)]="editingTask.dueDate" />
+      </div>
+      <div class="form-group">
+        <label>Link (optional)</label>
+        <input [(ngModel)]="editingTask.link" placeholder="https://..." />
+      </div>
+      <div class="form-group full-width">
+        <label>Remarks (optional)</label>
+        <textarea [(ngModel)]="editingTask.remarks" rows="3"></textarea>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-cancel" (click)="showEditTask = false">Cancel</button>
+      <button class="btn-save" (click)="saveEditedTask()">Update Task</button>
+    </div>
+  </div>
+</div>
+</div>
