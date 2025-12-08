@@ -12,6 +12,7 @@ import { SpecializationComponent } from './specialization/specialization.compone
 import { PhasetaskComponent } from 'src/app/phasetask/phasetask.component';
 import { TaskTableComponent } from './task-table/task-table.component';
 import { OperationActivityComponent } from './operation-activity/operation-activity.component';
+import { ProjectTaskComponent } from './project-task/project-task.component';
 
 
 const routes: Routes = [
@@ -25,6 +26,7 @@ const routes: Routes = [
   { path: 'specialization', component: SpecializationComponent },
   { path: 'phasetask', component: PhasetaskComponent },
   { path: 'taskform', component: TaskFormComponent},
+  { path: 'project-tasks/:projectName', component: ProjectTaskComponent },
   { 
     path: 'operation-activity', 
     component: OperationActivityComponent,

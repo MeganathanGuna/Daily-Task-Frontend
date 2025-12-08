@@ -1068,3 +1068,375 @@
 .dropdown-menu.show + .dropdown-btn::after {
   opacity: 1;
 }
+/* TOGGLE SWITCH - PREMIUM STYLE */
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  padding: 0 0.5rem;
+}
+
+.toggle-container {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: #2a2a2a;
+  padding: 10px 16px;
+  border-radius: 12px;
+  border: 1px solid #444;
+}
+
+.toggle-label {
+  font-size: 0.9rem;
+  color: #0d6efd;
+  font-weight: 600;
+}
+
+.toggle-switch {
+  position: relative;
+  display: inline-block;
+  width: 52px;
+  height: 28px;
+}
+
+.toggle-switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background-color: #444;
+  transition: .4s;
+  border-radius: 34px;
+}
+
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 22px;
+  width: 22px;
+  left: 4px;
+  bottom: 3px;
+  background-color: white;
+  transition: .4s;
+  border-radius: 50%;
+}
+
+input:checked + .slider {
+  background-color: #0d6efd;
+}
+
+input:checked + .slider:before {
+  transform: translateX(22px);
+}
+
+.slider.round { border-radius: 34px; }
+.slider.round:before { border-radius: 50%; }
+
+/* ==========================================================
+   ALL PROJECTS TABLE - EXACT DESIGN MATCH (2025 STYLE)
+========================================================== */
+.all-projects-table-container {
+  background: #1a1a1a;
+  border-radius: 16px;
+  overflow: hidden;
+  border: 1px solid #333;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+  margin-top: 1rem;
+}
+
+.table-wrapper {
+  overflow-x: auto;
+}
+
+.projects-main-header {
+  display: grid;
+  grid-template-columns: 120px 1.8fr 1fr 100px 120px 110px 1.5fr 100px;
+  background: #222;
+  font-size: 0.82rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  color: #aaa;
+  border-bottom: 1px solid #444;
+}
+
+.header-col {
+  padding: 14px 12px;
+  text-align: left;
+}
+
+.projects-body {
+  max-height: calc(100vh - 320px);
+  overflow-y: auto;
+}
+
+/* Scrollbar */
+.projects-body::-webkit-scrollbar {
+  width: 8px;
+}
+.projects-body::-webkit-scrollbar-track {
+  background: #111;
+}
+.projects-body::-webkit-scrollbar-thumb {
+  background: #555;
+  border-radius: 4px;
+}
+.projects-body::-webkit-scrollbar-thumb:hover {
+  background: #777;
+}
+
+.project-row {
+  display: grid;
+  grid-template-columns: 120px 1.8fr 1fr 100px 120px 110px 1.5fr 100px;
+  align-items: center;
+  background: #1e1e1e;
+  border-bottom: 1px solid #333;
+  transition: background 0.2s;
+}
+
+.project-row:hover {
+  background: #252525;
+}
+
+.cell {
+  padding: 14px 12px;
+  font-size: 0.92rem;
+  color: #e0e0e0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.cell.project strong {
+  color: #0d6efd;
+  font-weight: 600;
+}
+
+.status-badge {
+  padding: 4px 10px;
+  border-radius: 8px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+.status-badge.wip { background: #ffc107; color: #000; }
+.status-badge.open { background: #28a745; color: white; }
+.status-badge.completed { background: #17a2b8; color: white; }
+
+.action-btn {
+  background: none;
+  border: none;
+  color: #aaa;
+  font-size: 1rem;
+  padding: 6px;
+  margin: 0 4px;
+  cursor: pointer;
+  border-radius: 6px;
+  transition: all 0.2s;
+}
+.action-btn:hover { background: #333; color: white; }
+.edit-btn:hover { color: #ffc107; }
+
+/* Task Subheader - Bright Blue */
+.task-subheader {
+  display: grid;
+  grid-template-columns: 2.2fr 0.8fr 1.1fr 1.8fr 1fr 1fr;
+  background: #0d6efd;
+  color: white;
+  font-weight: 600;
+  font-size: 0.88rem;
+  transition: all 0.3s ease;
+  overflow: hidden;
+}
+.task-subheader.collapsed {
+  max-height: 0;
+  padding: 0;
+  border: none;
+}
+
+.subheader-cell {
+  padding: 10px 10px;
+  white-space: nowrap;
+}
+
+/* Task Rows */
+.task-row {
+  display: grid;
+  grid-template-columns: 2.2fr 0.8fr 1.1fr 1.8fr 1fr 1fr;
+  align-items: center;
+  background: #1a1a1a;
+  border-bottom: 1px solid #2a2a2a;
+  transition: background 0.2s;
+}
+.task-row:hover {
+  background: #222;
+}
+.task-row.auto-task {
+  color: #999;
+  font-style: italic;
+}
+
+.task-row .cell {
+  padding: 12px 10px;
+  font-size: 0.9rem;
+  overflow: hidden;
+}
+
+/* Fix word wrap for Comment & Assigned To */
+.comment-wrap,
+.assigned-to {
+  white-space: normal !important;
+  word-wrap: break-word;
+  overflow-wrap: anywhere;
+  line-height: 1.4;
+}
+
+/* End Date - Red if overdue */
+.end-date.overdue {
+  color: #ff4444 !important;
+  font-weight: bold;
+}
+
+/* Scrollbar */
+.projects-body {
+  max-height: calc(100vh - 320px);
+  overflow-y: auto;
+}
+.projects-body::-webkit-scrollbar {
+  width: 8px;
+}
+.projects-body::-webkit-scrollbar-track { background: #111; }
+.projects-body::-webkit-scrollbar-thumb {
+  background: #555;
+  border-radius: 4px;
+}
+.projects-body::-webkit-scrollbar-thumb:hover { background: #777; }
+
+.empty-state {
+  text-align: center;
+  padding: 60px 20px;
+  color: #888;
+  font-size: 1.1rem;
+}
+/* ==========================================================
+   DETAILED VIEW - FIX WORD WRAP FOR PHASES & REMARKS (2025 FINAL)
+========================================================== */
+
+/* === FINAL WORD WRAP FIX FOR DETAILED VIEW (PHASES & REMARKS) === */
+.project-row,
+.task-row {
+  align-items: start !important;
+}
+
+.cell.phase,
+.cell.remarks {
+  white-space: normal !important;
+  word-wrap: break-word;
+  overflow-wrap: anywhere;
+  line-height: 1.5;
+  hyphens: auto;
+  padding: 12px 10px !important;
+  min-height: 50px;
+  display: flex;
+  align-items: center;
+}
+
+.cell.remarks { color: #bbbbbb; font-size: 0.88rem; }
+.cell.phase { color: #0d6efd; font-weight: 500; }
+
+.project-row {
+  min-height: 70px;
+  align-items: stretch !important;
+}
+
+.project-row:hover .cell.phase,
+.project-row:hover .cell.remarks {
+  background: rgba(13, 110, 253, 0.08);
+  border-radius: 6px;
+}
+
+/* Give more space to Phases & Remarks columns */
+.projects-main-header,
+.project-row {
+  grid-template-columns: 120px 1.8fr 1fr 100px 160px 110px 2.3fr 100px !important;
+}
+/* ==========================================================
+   DETAILED VIEW – FULL WORD WRAP FOR ALL TEXT COLUMNS (2025 FINAL)
+========================================================== */
+
+.project-row,
+.task-row {
+  align-items: start !important;           /* Allow rows to grow vertically */
+  min-height: 76px;                        /* Comfortable base height */
+}
+
+/* Enable word wrap on ALL text-heavy columns */
+.cell.account,
+.cell.project,
+.cell.pm,
+.cell.phase,
+.cell.remarks {
+  white-space: normal !important;
+  word-wrap: break-word;
+  overflow-wrap: anywhere;
+  line-height: 1.5;
+  hyphens: auto;
+  padding: 12px 10px !important;
+  display: flex;
+  align-items: center;
+}
+
+/* Special styling per column */
+.cell.account   { color: #e0e0e0; font-weight: 500; }
+.cell.project strong { 
+  color: #0d6efd; 
+  font-weight: 600; 
+  display: block;
+}
+.cell.pm        { color: #ffd93d; font-weight: 500; }
+.cell.phase     { color: #0d6efd; font-weight: 500; }
+.cell.remarks   { 
+  color: #bbbbbb; 
+  font-size: 0.88rem; 
+  font-style: italic;
+}
+
+/* Optional: Subtle hover highlight on wrapped cells */
+.project-row:hover .cell.account,
+.project-row:hover .cell.project,
+.project-row:hover .cell.pm,
+.project-row:hover .cell.phase,
+.project-row:hover .cell.remarks {
+  background: rgba(13, 110, 253, 0.08);
+  border-radius: 6px;
+  transition: background 0.2s ease;
+}
+
+/* BEST COLUMN WIDTHS – Balanced & Beautiful */
+.projects-main-header,
+.project-row {
+  grid-template-columns: 
+    140px    /* Account */
+    2.2fr    /* Project (most important – gets max space) */
+    130px    /* PM */
+    100px    /* Status */
+    170px    /* Phases */
+    110px    /* Assigned Date */
+    2.4fr    /* Remarks (2nd most space) */
+    100px !important; /* Actions */
+}
+.edit-btn {
+  color: #ffc107 !important;
+}
+.edit-btn:hover {
+  color: #fff !important;
+  background: #ffc107;
+  border-radius: 4px;
+}

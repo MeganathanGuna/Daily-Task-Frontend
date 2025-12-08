@@ -150,6 +150,9 @@
           <button class="clear-btn" (click)="clearFilters()">Clear</button>
           <div class="summary-cards">
           <div class="summary-card">
+            <div class="summary-title">
+  <strong>{{ getSummaryTitle() }}</strong>
+</div>
             <h6>Projects</h6>
             <p>Total: <strong>{{ totalProjects }}</strong></p>
             <p class="clickable text-info" (click)="showAssignedProjects()">Assigned: <strong>{{ assignedProjects }}</strong></p>
@@ -159,6 +162,9 @@
           </div>
 
           <div class="summary-card">
+            <div class="summary-title">
+  <strong>{{ getSummaryTitle() }}</strong>
+</div>
             <h6>Tasks</h6>
             <p>Total: <strong>{{ totalTasks }}</strong></p>
             <p class="clickable text-warning" (click)="showAssignedTasks()">Assigned: <strong>{{ assignedTasks }}</strong></p>
@@ -176,63 +182,167 @@
 
       <!-- All Projects Section -->
       <div class="content-scrollable">
-    <div class="projects-section">
-      <h2 class="section-title">All Projects</h2>
-      <div class="project-cards">
-          <div *ngFor="let project of filteredProjects" class="project-card">
-            <div class="card-header">
-              <h4>{{ project.projectName }}</h4>
-              <div class="actions">
-                <button class="icon-btn" (click)="openTasksPopup(project)">
-                  <i class="bi bi-chevron-down"></i>
-                </button>
-                <button *ngIf="userRole === 'Admin' || project.pmName === userName"
-                        class="icon-btn edit" (click)="editProject(project)">
-                  <i class="bi bi-pencil"></i>
-                </button>
-              </div>
-            </div>
+        <div class="projects-section">
+  <div class="section-header">
+    <h2 class="section-title">All Projects</h2>
+    
+    <!-- TOGGLE BUTTON -->
+    <div class="toggle-container">
+      <span class="toggle-label">Detailed View</span>
+      <label class="toggle-switch">
+        <input type="checkbox" [(ngModel)]="showDetailedView" (change)="toggleDetailedView()">
+        <span class="slider round"></span>
+      </label>
+    </div>
+  </div>
 
-            <div class="card-body">
-              <div class="info-row">
-                <span class="label">Account:</span> {{ project.account?.accountName || project.accountName }}
-              </div>
-              <div class="info-row">
-                <span class="label">PM:</span> {{ project.pmName }}
-              </div>
-              <div class="info-row">
-  <span class="label">Status:</span>
-  <div class="value">
-    <span class="status-badge" [ngClass]="project.status.toLowerCase()">
-      {{ project.status }}
-    </span>
+  <!-- DETAILED VIEW (When Toggle ON) -->
+  <!-- DETAILED VIEW - EXACT MATCH TO YOUR SCREENSHOT -->
+<div *ngIf="showDetailedView; else compactView" class="all-projects-table-container">
+  <div class="table-wrapper">
+    <!-- Main Header -->
+    <div class="projects-main-header">
+      <div class="header-col account">Account</div>
+      <div class="header-col project">Project</div>
+      <div class="header-col pm">PM</div>
+      <div class="header-col status">Status</div>
+      <div class="header-col phase">Phases</div>
+      <div class="header-col assigned">Assigned</div>
+      <div class="header-col remarks">Remarks</div>
+      <div class="header-col actions">Actions</div>
+    </div>
+
+    <div class="projects-body">
+      <ng-container *ngFor="let project of filteredProjects; let i = index">
+        <!-- Project Row -->
+        <div class="project-row" (click)="openProjectTasks(project)" style="cursor: pointer;">
+          <div class="cell account">{{ project.account?.accountName || project.accountName || '—' }}</div>
+          <div class="cell project">
+            <strong>{{ project.projectName }}</strong>
+          </div>
+          <div class="cell pm">{{ project.pmName }}</div>
+          <div class="cell status">
+            <span class="status-badge" [ngClass]="project.status.toLowerCase()">
+              {{ project.status }}
+            </span>
+          </div>
+          <div class="cell phase">{{ project.phases }}</div>
+          <div class="cell assigned">{{ formatDate(project.assignedDate) }}</div>
+          <div class="cell remarks">{{ project.remarks || '—' }}</div>
+          <div class="cell actions" (click)="$event.stopPropagation()">
+  <button class="action-btn expand-btn" 
+          (click)="toggleTasks(project.projectName); $event.stopPropagation()">
+    <i class="bi" 
+       [class.bi-dash]="expandedProjects.has(project.projectName)"
+       [class.bi-plus]="!expandedProjects.has(project.projectName)"></i>
+  </button>
+  <button *ngIf="userRole === 'Admin' || project.pmName === userName"
+          class="action-btn edit-btn" 
+          (click)="editProject(project); $event.stopPropagation()">
+    <i class="bi bi-pencil"></i>
+  </button>
+</div>
+        </div>
+
+        <!-- Task Sub-Header (Blue) -->
+        <div class="task-subheader" 
+             [class.collapsed]="!expandedProjects.has(project.projectName)">
+          <div class="subheader-cell task-name">Task Name</div>
+          <div class="subheader-cell status">Status</div>
+          <div class="subheader-cell assigned-to">Assigned To</div>
+          <div class="subheader-cell comment">Comment</div>
+          <div class="subheader-cell comment">Assigned Date</div>
+          <div class="subheader-cell end-date">End Date</div>
+        </div>
+
+        <!-- Tasks Rows -->
+        <ng-container *ngIf="expandedProjects.has(project.projectName) && projectTasksMap[project.projectName]?.length">
+          <div class="task-row" 
+               *ngFor="let task of projectTasksMap[project.projectName]"
+               [class.auto-task]="task.remarks?.includes('Auto created')">
+            <div class="cell task-name">{{ task.projectTitle || task.projectTitle }}</div>
+            <div class="cell status">
+              <span class="status-badge small" [ngClass]="(task.status || 'Open').toLowerCase()">
+                {{ task.status || 'Open' }}
+              </span>
+            </div>
+            <div class="cell assigned-to">{{ task.role || 'Default Task - Created - UDHAY' }}</div>
+            <div class="cell comment-wrap" [title]="task.remarks">
+              {{ task.remarks || '—' }}
+            </div>
+            <div class="cell">{{ formatDate(task.assignedDate) }}</div>
+            <div class="cell end-date" [class.overdue]="isExpiredTask(task)">
+              {{ formatDate(task.endDate) }}
+            </div>
+          </div>
+        </ng-container>
+
+        <!-- No Tasks Message -->
+        <div class="task-row no-tasks-row" 
+             *ngIf="expandedProjects.has(project.projectName) && !projectTasksMap[project.projectName]?.length">
+          <div class="cell" style="grid-column: 1 / -1; text-align: center; color: #666; padding: 20px;">
+            No tasks assigned yet
+          </div>
+        </div>
+      </ng-container>
+
+      <!-- Empty State -->
+      <div class="empty-state" *ngIf="!filteredProjects.length">
+        <p>No projects match the current filters.</p>
+      </div>
+    </div>
   </div>
 </div>
-              <div class="info-row">
-                <span class="label">Phase:</span> {{ project.phases }}
-              </div>
-              <div class="info-row">
-                <span class="label">Assigned:</span> {{ formatDate(project.assignedDate) }}
-              </div>
-              <div class="info-row">
-                <span class="label">Remarks:</span> 
-                <span>{{ project.remarks || '—' }}</span>
-              </div>
 
-              <div class="progress-container">
-                <div class="progress-bar">
-                  <div class="progress-fill" [style.width.%]="getProgress(project)"></div>
-                </div>
-                <span class="progress-text">{{ getProgress(project) }}% Complete</span>
-              </div>
-
-              
+  <!-- COMPACT VIEW (Default - Your Current Beautiful Cards) -->
+  <ng-template #compactView>
+    <div class="project-cards">
+      <div *ngFor="let project of filteredProjects" class="project-card">
+        <div class="card-header">
+          <h4>{{ project.projectName }}</h4>
+          <div class="actions">
+            <button class="icon-btn" (click)="openTasksPopup(project)">
+              <i class="bi bi-chevron-down"></i>
+            </button>
+            <button *ngIf="userRole === 'Admin' || project.pmName === userName"
+                    class="icon-btn edit" (click)="editProject(project)">
+              <i class="bi bi-pencil"></i>
+            </button>
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="info-row">
+            <span class="label">Account:</span> {{ project.account?.accountName || project.accountName }}
+          </div>
+          <div class="info-row">
+            <span class="label">PM:</span> {{ project.pmName }}
+          </div>
+          <div class="info-row">
+            <span class="label">Status:</span>
+            <span class="status-badge" [ngClass]="project.status.toLowerCase()">{{ project.status }}</span>
+          </div>
+          <div class="info-row">
+            <span class="label">Phase:</span> {{ project.phases }}
+          </div>
+          <div class="info-row">
+            <span class="label">Assigned:</span> {{ formatDate(project.assignedDate) }}
+          </div>
+          <div class="info-row">
+            <span class="label">Remarks:</span> 
+            <span>{{ project.remarks || '—' }}</span>
+          </div>
+          <div class="progress-container">
+            <div class="progress-bar">
+              <div class="progress-fill" [style.width.%]="getProgress(project)"></div>
             </div>
+            <span class="progress-text">{{ getProgress(project) }}% Complete</span>
           </div>
         </div>
       </div>
     </div>
-  </div>
+  </ng-template>
+</div>
+        </div>
   <!--add account pop up form-->
   <div class="popup-overlay" *ngIf="showAccountForm" (click)="closeAccountForm()"></div>
 <div class="account-popup" *ngIf="showAccountForm">
